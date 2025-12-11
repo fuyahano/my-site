@@ -3,212 +3,390 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>てすごろくゲーム</title>
+  <title>AIと遊ぶオセロ</title>
   <style>
     :root {
       font-family: "Noto Sans JP", system-ui, sans-serif;
-      background-color: #1d1a2e;
-      color: #f7f5ff;
+      color: #f3f6ff;
+      background-color: #050b18;
+    }
+    * {
+      box-sizing: border-box;
     }
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at 20% 20%, #3b2f8d, #1d1a2e 60%);
+      background: radial-gradient(circle at 30% -20%, #1c3b6d, #050b18 55%);
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 1.5rem;
+      padding: 2rem 1rem;
     }
-    .game-shell {
+    .othello-shell {
       width: min(960px, 100%);
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(10, 14, 24, 0.85);
       border-radius: 2rem;
       padding: 2.5rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.65);
     }
     header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.75rem;
     }
     header h1 {
-      font-size: clamp(2.25rem, 4vw, 3rem);
-      margin-bottom: 0.25rem;
-      letter-spacing: 0.1em;
+      margin: 0;
+      font-size: clamp(2.4rem, 4vw, 3.2rem);
+      letter-spacing: 0.15em;
       text-transform: uppercase;
     }
     header p {
-      margin: 0;
-      color: #b0b6ff;
+      margin: 0.35rem 0 0;
+      color: #b5c7ff;
       font-size: 1rem;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
     }
     .board {
       display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 0.75rem;
-      margin-bottom: 1.75rem;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 0.45rem;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08), rgba(3, 9, 15, 0.7));
+      padding: 0.5rem;
+      border-radius: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .space {
-      padding: 1rem;
-      border-radius: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
-      min-height: 110px;
+    .cell {
       position: relative;
+      padding-top: 100%;
+      border-radius: 1rem;
+      overflow: hidden;
+      background: rgba(0, 255, 255, 0.05);
+      cursor: pointer;
+      transition: transform 0.2s ease, border 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .cell:hover:not(.disabled) {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    .disk {
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      background: #111;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8), 0 6px 15px rgba(0, 0, 0, 0.6);
+    }
+    .disk.white {
+      background: #f9f9f9;
+      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.6), 0 6px 15px rgba(0, 0, 0, 0.4);
+    }
+    .cell.highlight::after {
+      content: "";
+      position: absolute;
+      inset: 20%;
+      border-radius: 50%;
+      border: 2px dashed rgba(255, 255, 255, 0.75);
+    }
+    .status-panel {
       display: flex;
-      flex-direction: column;
       justify-content: space-between;
-      transition: transform 0.3s ease;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
-    .space.active {
-      transform: translateY(-6px);
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    .status-panel div {
+      flex: 1;
+      min-width: 180px;
+      padding: 0.8rem 1rem;
+      border-radius: 0.85rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .space span {
-      font-size: 0.85rem;
-      color: #a8bfff;
+    .status-panel strong {
+      display: block;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.35rem;
+      color: #a7b8ff;
     }
-    .space strong {
-      font-size: 1.1rem;
-      margin-top: 0.65rem;
+    .status-panel span {
+      font-size: 1.55rem;
+    }
+    .note {
+      font-size: 0.9rem;
+      color: #9cb3ff;
+      margin-top: 1rem;
+      text-align: center;
     }
     .controls {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       gap: 1rem;
       flex-wrap: wrap;
+      margin-bottom: 1rem;
     }
-    button {
+    .controls button {
       border: none;
-      background: linear-gradient(135deg, #ffd25f, #ff7a18);
-      color: #2b1f0f;
-      font-size: 1.1rem;
-      padding: 0.85rem 1.5rem;
+      background: linear-gradient(120deg, #85f5ff, #0c3b86);
+      color: #031024;
+      font-weight: 700;
+      padding: 0.85rem 1.75rem;
       border-radius: 999px;
-      font-weight: 700;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    button:active {
-      transform: translateY(1px);
+    .controls button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(8, 15, 40, 0.4);
     }
-    .dice-display {
-      font-size: 1.4rem;
-      letter-spacing: 0.12em;
-      color: #ffeaa7;
-    }
-    .messages {
-      margin-top: 1.25rem;
-      padding: 1.25rem;
-      border-radius: 1.25rem;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      min-height: 80px;
-    }
-    .messages p {
-      margin: 0;
-      line-height: 1.6;
-    }
-    .finish {
-      color: #7ef9ff;
-      font-weight: 700;
+    .controls button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
-  <div class="game-shell">
+  <div class="othello-shell">
     <header>
-      <h1>ちょこっとてすごろく</h1>
-      <p>サイコロを振って8マスのゴールを目指そう！</p>
+      <h1>AIと遊ぶオセロ</h1>
+      <p>あなたは黒。AIと戦略を練って勝利を掴もう。</p>
     </header>
+    <div class="status-panel">
+      <div>
+        <strong>現在のターン</strong>
+        <span id="turn-label">黒（あなた）</span>
+      </div>
+      <div>
+        <strong>黒</strong>
+        <span id="black-count">2</span>
+      </div>
+      <div>
+        <strong>白（AI）</strong>
+        <span id="white-count">2</span>
+      </div>
+    </div>
     <div class="board" id="board"></div>
     <div class="controls">
-      <button id="roll">サイコロを振る</button>
-      <div class="dice-display" id="dice">--</div>
-      <div id="turn-info">ターン: 0</div>
+      <button id="pass-btn">パス</button>
+      <button id="reset-btn">リセット</button>
     </div>
-    <div class="messages" id="messages">
-      <p>準備完了！「サイコロを振る」でスタート。</p>
+    <div class="note" id="message">
+      クリックで石を置いて開始。AIの思考も楽しんでね。
     </div>
   </div>
   <script>
-    const spaces = [
-      { name: "スタート", effect: "最初の一歩。ゆっくり行こう。" },
-      { name: "カフェ", effect: "コーヒーで1ターン休憩。次のターンに2倍進む。" },
-      { name: "アトリエ", effect: "創作意欲アップ！次のサイコロの目+1。" },
-      { name: "川の橋", effect: "渡るのに少し時間がかかる。次のターン-1移動。" },
-      { name: "森の小径", effect: "動物たちが応援。1マス追加で移動。" },
-      { name: "謎の遺跡", effect: "宝箱発見。もう一度チャンス。" },
-      { name: "風の丘", effect: "風に乗って次のターン+2進む。" },
-      { name: "ゴール", effect: "おめでとう！ゴール到達！" },
+    const HUMAN = 1;
+    const AI = -1;
+    const SIZE = 8;
+    const dirs = [
+      [-1, -1], [-1, 0], [-1, 1],
+      [0, -1], /*self*/ [0, 1],
+      [1, -1], [1, 0], [1, 1],
     ];
 
+    let board = [];
+    let currentPlayer = HUMAN;
     const boardEl = document.getElementById("board");
-    const diceEl = document.getElementById("dice");
-    const messagesEl = document.getElementById("messages");
-    const rollBtn = document.getElementById("roll");
-    const turnInfo = document.getElementById("turn-info");
+    const turnLabel = document.getElementById("turn-label");
+    const blackCountEl = document.getElementById("black-count");
+    const whiteCountEl = document.getElementById("white-count");
+    const messageEl = document.getElementById("message");
+    const passBtn = document.getElementById("pass-btn");
+    const resetBtn = document.getElementById("reset-btn");
 
-    let position = 0;
-    let turn = 0;
+    function createBoard() {
+      board = Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
+      board[3][3] = AI;
+      board[4][4] = AI;
+      board[3][4] = HUMAN;
+      board[4][3] = HUMAN;
+    }
 
-    function renderBoard() {
+    function inBounds(row, col) {
+      return row >= 0 && row < SIZE && col >= 0 && col < SIZE;
+    }
+
+    function getFlips(row, col, player) {
+      if (board[row][col] !== 0) return [];
+      const opponent = -player;
+      const flips = [];
+      for (const [dr, dc] of dirs) {
+        let r = row + dr;
+        let c = col + dc;
+        const path = [];
+        while (inBounds(r, c) && board[r][c] === opponent) {
+          path.push([r, c]);
+          r += dr;
+          c += dc;
+        }
+        if (path.length > 0 && inBounds(r, c) && board[r][c] === player) {
+          flips.push(...path);
+        }
+      }
+      return flips;
+    }
+
+    function getValidMoves(player) {
+      const moves = [];
+      for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+          const flips = getFlips(row, col, player);
+          if (flips.length) {
+            moves.push({ row, col, flips });
+          }
+        }
+      }
+      return moves;
+    }
+
+    function applyMove(row, col, player) {
+      const flips = getFlips(row, col, player);
+      if (!flips.length) return false;
+      board[row][col] = player;
+      for (const [r, c] of flips) {
+        board[r][c] = player;
+      }
+      return true;
+    }
+
+    function updateBoardUI() {
       boardEl.innerHTML = "";
-      spaces.forEach((space, index) => {
-        const spaceEl = document.createElement("div");
-        spaceEl.className = `space${index === position ? " active" : ""}`;
-        spaceEl.innerHTML = `
-          <span>マス ${index + 1}</span>
-          <strong>${space.name}</strong>
-          <p>${space.effect}</p>
-        `;
-        boardEl.appendChild(spaceEl);
+      const validMoves = currentPlayer === HUMAN ? getValidMoves(HUMAN) : [];
+      const highlights = new Set(validMoves.map((move) => `${move.row}-${move.col}`));
+      for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+          const cell = document.createElement("div");
+          cell.className = `cell${highlights.has(`${row}-${col}`) ? " highlight" : ""}${board[row][col] ? "" : ""}`;
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          if (board[row][col] === HUMAN || board[row][col] === AI) {
+            const disk = document.createElement("div");
+            disk.className = "disk";
+            if (board[row][col] === AI) disk.classList.add("white");
+            cell.appendChild(disk);
+          }
+          if (board[row][col] !== 0) {
+            cell.classList.add("disabled");
+          }
+          boardEl.appendChild(cell);
+        }
+      }
+      updateCounts();
+    }
+
+    function updateCounts() {
+      let black = 0;
+      let white = 0;
+      board.forEach((row) => {
+        row.forEach((cell) => {
+          if (cell === HUMAN) black += 1;
+          if (cell === AI) white += 1;
+        });
       });
+      blackCountEl.textContent = black;
+      whiteCountEl.textContent = white;
     }
 
-    function logMessage(text, highlight = false) {
-      messagesEl.innerHTML = `<p class="${highlight ? "finish" : ""}">${text}</p>`;
+    function setMessage(text) {
+      messageEl.textContent = text;
     }
 
-    function updateTurn() {
-      turnInfo.textContent = `ターン: ${turn}`;
+    function checkGameOver() {
+      const humanMoves = getValidMoves(HUMAN);
+      const aiMoves = getValidMoves(AI);
+      if (!humanMoves.length && !aiMoves.length) {
+        const black = Number(blackCountEl.textContent);
+        const white = Number(whiteCountEl.textContent);
+        if (black > white) {
+          setMessage(`あなたの勝ち！${black} vs ${white}`);
+        } else if (white > black) {
+          setMessage(`AIの勝利... ${black} vs ${white}`);
+        } else {
+          setMessage(`引き分け！ ${black} vs ${white}`);
+        }
+        passBtn.disabled = true;
+        return true;
+      }
+      return false;
     }
 
-    function rollDice() {
-      if (position >= spaces.length - 1) {
-        logMessage("すでにゴールしています！ リロードして再挑戦。");
+    function handleHumanMove(row, col) {
+      if (currentPlayer !== HUMAN) return;
+      if (!applyMove(row, col, HUMAN)) return;
+      switchPlayer(AI);
+      setMessage("AIが考えています...");
+      updateBoardUI();
+      setTimeout(() => aiMove(), 450);
+    }
+
+    function switchPlayer(next) {
+      currentPlayer = next;
+      turnLabel.textContent = next === HUMAN ? "黒（あなた）" : "白（AI）";
+      passBtn.disabled = false;
+    }
+
+    function aiMove() {
+      const moves = getValidMoves(AI);
+      if (!moves.length) {
+        setMessage("AIがパスしました。あなたの番です。");
+        if (!getValidMoves(HUMAN).length) {
+          checkGameOver();
+          return;
+        }
+        switchPlayer(HUMAN);
+        updateBoardUI();
         return;
       }
-
-      const raw = Math.ceil(Math.random() * 6);
-      diceEl.textContent = raw;
-      turn += 1;
-
-      let move = raw;
-      // special board effects before moving
-      if (position === 1) move += 1;
-      if (position === 3) move = Math.max(1, move - 1);
-
-      position = Math.min(spaces.length - 1, position + move);
-      renderBoard();
-
-      const current = spaces[position];
-      const highlight = position === spaces.length - 1;
-      logMessage(`"${current.name}"に到着！ ${current.effect}`, highlight);
-      updateTurn();
-
-      if (highlight) {
-        rollBtn.textContent = "ゴール済み";
-        rollBtn.disabled = true;
-      }
+      let best = moves[0];
+      const cornerWeights = new Set(["0-0", "0-7", "7-0", "7-7"]);
+      moves.forEach((move) => {
+        const score = move.flips.length + (cornerWeights.has(`${move.row}-${move.col}`) ? 5 : 0);
+        const bestScore = best.flips.length + (cornerWeights.has(`${best.row}-${best.col}`) ? 5 : 0);
+        if (score > bestScore) {
+          best = move;
+        }
+      });
+      applyMove(best.row, best.col, AI);
+      switchPlayer(HUMAN);
+      updateBoardUI();
+      setMessage("AIが一手指しました。あなたの番です。");
+      if (checkGameOver()) return;
     }
 
-    rollBtn.addEventListener("click", rollDice);
+    boardEl.addEventListener("click", (event) => {
+      const cell = event.target.closest(".cell");
+      if (!cell) return;
+      const row = Number(cell.dataset.row);
+      const col = Number(cell.dataset.col);
+      handleHumanMove(row, col);
+      if (checkGameOver()) return;
+    });
 
-    renderBoard();
-    updateTurn();
+    passBtn.addEventListener("click", () => {
+      if (currentPlayer !== HUMAN) return;
+      const humanMoves = getValidMoves(HUMAN);
+      if (!humanMoves.length) {
+        setMessage("パスしました。AIの番です。");
+        switchPlayer(AI);
+        updateBoardUI();
+        setTimeout(() => aiMove(), 400);
+      } else {
+        setMessage("置けるマスがあります。パスできません。");
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      createBoard();
+      currentPlayer = HUMAN;
+      passBtn.disabled = false;
+      turnLabel.textContent = "黒（あなた）";
+      setMessage("再スタート！黒からの一手をどうぞ。");
+      updateBoardUI();
+    });
+
+    createBoard();
+    updateBoardUI();
   </script>
 </body>
 </html>
