@@ -3,142 +3,212 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Evangelion Cast</title>
+  <title>てすごろくゲーム</title>
   <style>
     :root {
       font-family: "Noto Sans JP", system-ui, sans-serif;
-      background-color: #040b1c;
-      color: #f4f6fb;
-    }
-    * {
-      box-sizing: border-box;
+      background-color: #1d1a2e;
+      color: #f7f5ff;
     }
     body {
       margin: 0;
       min-height: 100vh;
-      position: relative;
-      overflow: hidden;
+      background: radial-gradient(circle at 20% 20%, #3b2f8d, #1d1a2e 60%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
     }
-    .video-container {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      opacity: 0.8;
-    }
-    .video-container::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(4, 11, 28, 0.6), rgba(3, 10, 24, 0.85));
-    }
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .page {
-      position: relative;
-      z-index: 1;
-      padding: 3rem 1.5rem 4rem;
-      max-width: 1100px;
-      margin: 0 auto;
+    .game-shell {
+      width: min(960px, 100%);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 2rem;
+      padding: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     }
     header {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
     }
     header h1 {
-      font-size: clamp(2.75rem, 5vw, 3.5rem);
-      letter-spacing: 0.12em;
+      font-size: clamp(2.25rem, 4vw, 3rem);
       margin-bottom: 0.25rem;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
     }
     header p {
       margin: 0;
-      color: #a7b5d8;
+      color: #b0b6ff;
+      font-size: 1rem;
       letter-spacing: 0.08em;
     }
-    .grid {
+    .board {
       display: grid;
-      gap: 1.5rem;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(8, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
     }
-    article {
-      background: rgba(7, 19, 40, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 1.5rem;
-      padding: 1.75rem;
-      box-shadow: 0 15px 30px rgba(1, 6, 18, 0.6);
-      backdrop-filter: blur(12px);
-      min-height: 250px;
+    .space {
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+      min-height: 110px;
+      position: relative;
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      justify-content: space-between;
+      transition: transform 0.3s ease;
     }
-    article h2 {
+    .space.active {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    }
+    .space span {
+      font-size: 0.85rem;
+      color: #a8bfff;
+    }
+    .space strong {
+      font-size: 1.1rem;
+      margin-top: 0.65rem;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    button {
+      border: none;
+      background: linear-gradient(135deg, #ffd25f, #ff7a18);
+      color: #2b1f0f;
+      font-size: 1.1rem;
+      padding: 0.85rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    .dice-display {
+      font-size: 1.4rem;
+      letter-spacing: 0.12em;
+      color: #ffeaa7;
+    }
+    .messages {
+      margin-top: 1.25rem;
+      padding: 1.25rem;
+      border-radius: 1.25rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      min-height: 80px;
+    }
+    .messages p {
       margin: 0;
-      font-size: 1.65rem;
+      line-height: 1.6;
     }
-    article strong {
-      display: block;
-      margin-bottom: 0.65rem;
-      color: #88b3ff;
-      font-size: 1rem;
-      letter-spacing: 0.04em;
-    }
-    article p {
-      margin: 0;
-      color: #dfe5f3;
-      line-height: 1.5;
-    }
-    .note {
-      margin-top: 3rem;
-      text-align: center;
-      color: #a1b4dc;
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
+    .finish {
+      color: #7ef9ff;
+      font-weight: 700;
     }
   </style>
 </head>
 <body>
-  <div class="video-container" aria-hidden="true">
-    <video autoplay muted loop playsinline>
-      <source src="https://cdn.pixabay.com/download/video/2022/06/20/07-50-42-192_640x360.mp4?attachment" type="video/mp4" />
-    </video>
-  </div>
-  <div class="page">
+  <div class="game-shell">
     <header>
-      <h1>Neon Genesis Evangelion</h1>
-      <p>使徒との交戦を背に、主要キャラを紹介</p>
+      <h1>ちょこっとてすごろく</h1>
+      <p>サイコロを振って8マスのゴールを目指そう！</p>
     </header>
-    <section class="grid">
-      <article>
-        <h2>碇シンジ</h2>
-        <strong>第1の子供 / 初号機</strong>
-        <p>意思よりも他者の期待に反応しがちだが、撤退も再挑戦も同じくらい人間的。</p>
-        <p>エヴァのコクピットで吠える叫びは、彼の精神の叫びとも重なる。</p>
-      </article>
-      <article>
-        <h2>惣流・アスカ・ラングレー</h2>
-        <strong>第2の子供 / 2号機</strong>
-        <p>プライド高く、爆発的な戦闘スタイルでしばしば孤立するが、その裏では仲間を渇望。</p>
-        <p>熟練のパイロットとしての冷静さと、実は脆い自己肯定感が混在する。</p>
-      </article>
-      <article>
-        <h2>綾波レイ</h2>
-        <strong>第3の子供 / 零号機</strong>
-        <p>感情の起伏が少なく、まるで使徒のように静か。だがその存在自体が物語の核心。</p>
-        <p>「わたし」が何かを問い続ける姿勢が、人間とエヴァの境界を浮き彫りにする。</p>
-      </article>
-      <article>
-        <h2>葛城ミサト</h2>
-        <strong>ネルフ作戦部長</strong>
-        <p>玩具のような外見とは裏腹に、指揮室から兵装と人命の釣り合いを見極める。</p>
-        <p>シンジたちを親のように見守りつつ、往復書簡のような弱さと強さを併せ持つ。</p>
-      </article>
-    </section>
-    <p class="note">背景映像はアニメ「ヱヴァンゲリヲン」と戦闘イメージの雰囲気を想起させる演出です。</p>
+    <div class="board" id="board"></div>
+    <div class="controls">
+      <button id="roll">サイコロを振る</button>
+      <div class="dice-display" id="dice">--</div>
+      <div id="turn-info">ターン: 0</div>
+    </div>
+    <div class="messages" id="messages">
+      <p>準備完了！「サイコロを振る」でスタート。</p>
+    </div>
   </div>
+  <script>
+    const spaces = [
+      { name: "スタート", effect: "最初の一歩。ゆっくり行こう。" },
+      { name: "カフェ", effect: "コーヒーで1ターン休憩。次のターンに2倍進む。" },
+      { name: "アトリエ", effect: "創作意欲アップ！次のサイコロの目+1。" },
+      { name: "川の橋", effect: "渡るのに少し時間がかかる。次のターン-1移動。" },
+      { name: "森の小径", effect: "動物たちが応援。1マス追加で移動。" },
+      { name: "謎の遺跡", effect: "宝箱発見。もう一度チャンス。" },
+      { name: "風の丘", effect: "風に乗って次のターン+2進む。" },
+      { name: "ゴール", effect: "おめでとう！ゴール到達！" },
+    ];
+
+    const boardEl = document.getElementById("board");
+    const diceEl = document.getElementById("dice");
+    const messagesEl = document.getElementById("messages");
+    const rollBtn = document.getElementById("roll");
+    const turnInfo = document.getElementById("turn-info");
+
+    let position = 0;
+    let turn = 0;
+
+    function renderBoard() {
+      boardEl.innerHTML = "";
+      spaces.forEach((space, index) => {
+        const spaceEl = document.createElement("div");
+        spaceEl.className = `space${index === position ? " active" : ""}`;
+        spaceEl.innerHTML = `
+          <span>マス ${index + 1}</span>
+          <strong>${space.name}</strong>
+          <p>${space.effect}</p>
+        `;
+        boardEl.appendChild(spaceEl);
+      });
+    }
+
+    function logMessage(text, highlight = false) {
+      messagesEl.innerHTML = `<p class="${highlight ? "finish" : ""}">${text}</p>`;
+    }
+
+    function updateTurn() {
+      turnInfo.textContent = `ターン: ${turn}`;
+    }
+
+    function rollDice() {
+      if (position >= spaces.length - 1) {
+        logMessage("すでにゴールしています！ リロードして再挑戦。");
+        return;
+      }
+
+      const raw = Math.ceil(Math.random() * 6);
+      diceEl.textContent = raw;
+      turn += 1;
+
+      let move = raw;
+      // special board effects before moving
+      if (position === 1) move += 1;
+      if (position === 3) move = Math.max(1, move - 1);
+
+      position = Math.min(spaces.length - 1, position + move);
+      renderBoard();
+
+      const current = spaces[position];
+      const highlight = position === spaces.length - 1;
+      logMessage(`"${current.name}"に到着！ ${current.effect}`, highlight);
+      updateTurn();
+
+      if (highlight) {
+        rollBtn.textContent = "ゴール済み";
+        rollBtn.disabled = true;
+      }
+    }
+
+    rollBtn.addEventListener("click", rollDice);
+
+    renderBoard();
+    updateTurn();
+  </script>
 </body>
 </html>
