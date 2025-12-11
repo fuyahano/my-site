@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AIと遊ぶオセロ</title>
+  <title>キーボードで遊ぶミニマリオ</title>
   <style>
     :root {
       font-family: "Noto Sans JP", system-ui, sans-serif;
-      color: #f3f6ff;
-      background-color: #050b18;
+      background-color: #030617;
+      color: #fff;
     }
     * {
       box-sizing: border-box;
@@ -16,377 +16,285 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at 30% -20%, #1c3b6d, #050b18 55%);
+      background: linear-gradient(180deg, #5ec2ff, #0d1b56 70%);
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 2rem 1rem;
     }
-    .othello-shell {
-      width: min(960px, 100%);
-      background: rgba(10, 14, 24, 0.85);
+    .game-shell {
+      width: min(1000px, 100%);
       border-radius: 2rem;
-      padding: 2.5rem;
+      background: rgba(3, 6, 20, 0.9);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.65);
+      padding: 2rem;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
     }
     header {
       text-align: center;
-      margin-bottom: 1.75rem;
+      margin-bottom: 1rem;
     }
     header h1 {
       margin: 0;
-      font-size: clamp(2.4rem, 4vw, 3.2rem);
-      letter-spacing: 0.15em;
+      font-size: clamp(2.5rem, 4vw, 3.5rem);
+      letter-spacing: 0.2em;
       text-transform: uppercase;
     }
     header p {
-      margin: 0.35rem 0 0;
-      color: #b5c7ff;
-      font-size: 1rem;
-      letter-spacing: 0.1em;
+      margin: 0.5rem auto 0;
+      color: #a7c6ff;
+      font-size: 1.05rem;
     }
-    .board {
-      display: grid;
-      grid-template-columns: repeat(8, minmax(0, 1fr));
-      gap: 0.45rem;
-      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08), rgba(3, 9, 15, 0.7));
-      padding: 0.5rem;
+    canvas {
+      display: block;
+      width: 100%;
       border-radius: 1.5rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: linear-gradient(#4fc3ff, #1a5bb8);
+      box-shadow: inset 0 0 55px rgba(255, 255, 255, 0.08), 0 15px 30px rgba(0, 0, 0, 0.5);
     }
-    .cell {
-      position: relative;
-      padding-top: 100%;
-      border-radius: 1rem;
-      overflow: hidden;
-      background: rgba(0, 255, 255, 0.05);
-      cursor: pointer;
-      transition: transform 0.2s ease, border 0.2s ease;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .cell:hover:not(.disabled) {
-      transform: translateY(-4px);
-      border-color: rgba(255, 255, 255, 0.35);
-    }
-    .disk {
-      position: absolute;
-      inset: 12%;
-      border-radius: 50%;
-      background: #111;
-      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8), 0 6px 15px rgba(0, 0, 0, 0.6);
-    }
-    .disk.white {
-      background: #f9f9f9;
-      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.6), 0 6px 15px rgba(0, 0, 0, 0.4);
-    }
-    .cell.highlight::after {
-      content: "";
-      position: absolute;
-      inset: 20%;
-      border-radius: 50%;
-      border: 2px dashed rgba(255, 255, 255, 0.75);
-    }
-    .status-panel {
+    .info {
+      margin-top: 1rem;
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 1rem;
-      margin-bottom: 1rem;
     }
-    .status-panel div {
-      flex: 1;
-      min-width: 180px;
-      padding: 0.8rem 1rem;
-      border-radius: 0.85rem;
+    .info div {
       background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      min-width: 220px;
     }
-    .status-panel strong {
+    .info strong {
       display: block;
-      font-size: 1rem;
-      letter-spacing: 0.1em;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      color: #7ecbff;
       margin-bottom: 0.35rem;
-      color: #a7b8ff;
     }
-    .status-panel span {
-      font-size: 1.55rem;
-    }
-    .note {
-      font-size: 0.9rem;
-      color: #9cb3ff;
-      margin-top: 1rem;
-      text-align: center;
-    }
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-    .controls button {
-      border: none;
-      background: linear-gradient(120deg, #85f5ff, #0c3b86);
-      color: #031024;
-      font-weight: 700;
-      padding: 0.85rem 1.75rem;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .controls button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(8, 15, 40, 0.4);
-    }
-    .controls button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .info span {
+      font-size: 1.25rem;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div class="othello-shell">
+  <div class="game-shell">
     <header>
-      <h1>AIと遊ぶオセロ</h1>
-      <p>あなたは黒。AIと戦略を練って勝利を掴もう。</p>
+      <h1>ミニマリオ風ランナー</h1>
+      <p>←→で左右、↑でジャンプ。ゴールを目指してみよう！</p>
     </header>
-    <div class="status-panel">
+    <canvas id="game" width="900" height="500" aria-label="キーボード操作で動かすプラットフォーマーゲーム"></canvas>
+    <div class="info">
       <div>
-        <strong>現在のターン</strong>
-        <span id="turn-label">黒（あなた）</span>
+        <strong>操作</strong>
+        <span>左右キー / ジャンプ（↑またはスペース）</span>
       </div>
       <div>
-        <strong>黒</strong>
-        <span id="black-count">2</span>
+        <strong>ゴール距離</strong>
+        <span id="progress">0%</span>
       </div>
-      <div>
-        <strong>白（AI）</strong>
-        <span id="white-count">2</span>
-      </div>
-    </div>
-    <div class="board" id="board"></div>
-    <div class="controls">
-      <button id="pass-btn">パス</button>
-      <button id="reset-btn">リセット</button>
-    </div>
-    <div class="note" id="message">
-      クリックで石を置いて開始。AIの思考も楽しんでね。
     </div>
   </div>
   <script>
-    const HUMAN = 1;
-    const AI = -1;
-    const SIZE = 8;
-    const dirs = [
-      [-1, -1], [-1, 0], [-1, 1],
-      [0, -1], /*self*/ [0, 1],
-      [1, -1], [1, 0], [1, 1],
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const width = canvas.width;
+    const height = canvas.height;
+
+    const hero = {
+      x: 60,
+      y: 0,
+      width: 36,
+      height: 48,
+      vx: 0,
+      vy: 0,
+      color: "#ffbb3f",
+      grounded: false,
+    };
+
+    const gravity = 0.9;
+    const friction = 0.85;
+
+    const platforms = [
+      { x: 0, y: height - 30, width, height: 30 },
+      { x: 160, y: height - 120, width: 160, height: 16 },
+      { x: 360, y: height - 200, width: 200, height: 16 },
+      { x: 600, y: height - 140, width: 140, height: 16 },
+      { x: 780, y: height - 80, width: 140, height: 16 },
     ];
 
-    let board = [];
-    let currentPlayer = HUMAN;
-    const boardEl = document.getElementById("board");
-    const turnLabel = document.getElementById("turn-label");
-    const blackCountEl = document.getElementById("black-count");
-    const whiteCountEl = document.getElementById("white-count");
-    const messageEl = document.getElementById("message");
-    const passBtn = document.getElementById("pass-btn");
-    const resetBtn = document.getElementById("reset-btn");
+    const goalLine = width - 60;
 
-    function createBoard() {
-      board = Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
-      board[3][3] = AI;
-      board[4][4] = AI;
-      board[3][4] = HUMAN;
-      board[4][3] = HUMAN;
-    }
+    const keys = {
+      ArrowLeft: false,
+      ArrowRight: false,
+      ArrowUp: false,
+      Space: false,
+    };
 
-    function inBounds(row, col) {
-      return row >= 0 && row < SIZE && col >= 0 && col < SIZE;
-    }
-
-    function getFlips(row, col, player) {
-      if (board[row][col] !== 0) return [];
-      const opponent = -player;
-      const flips = [];
-      for (const [dr, dc] of dirs) {
-        let r = row + dr;
-        let c = col + dc;
-        const path = [];
-        while (inBounds(r, c) && board[r][c] === opponent) {
-          path.push([r, c]);
-          r += dr;
-          c += dc;
-        }
-        if (path.length > 0 && inBounds(r, c) && board[r][c] === player) {
-          flips.push(...path);
-        }
+    function drawBackground() {
+      const grd = ctx.createLinearGradient(0, 0, 0, height);
+      grd.addColorStop(0, "#74c0f0");
+      grd.addColorStop(1, "#1b3f8f");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, width, height);
+      for (let i = 0; i < 10; i++) {
+        ctx.fillStyle = "rgba(255,255,255,0.08)";
+        ctx.beginPath();
+        ctx.arc(120 * i, 80, 12, 0, Math.PI * 2);
+        ctx.fill();
       }
-      return flips;
     }
 
-    function getValidMoves(player) {
-      const moves = [];
-      for (let row = 0; row < SIZE; row++) {
-        for (let col = 0; col < SIZE; col++) {
-          const flips = getFlips(row, col, player);
-          if (flips.length) {
-            moves.push({ row, col, flips });
-          }
-        }
-      }
-      return moves;
+    function drawSunset() {
+      const grd = ctx.createRadialGradient(120, 80, 20, 120, 80, 90);
+      grd.addColorStop(0, "#ffe066");
+      grd.addColorStop(1, "rgba(255, 224, 102, 0)");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, width, height);
     }
 
-    function applyMove(row, col, player) {
-      const flips = getFlips(row, col, player);
-      if (!flips.length) return false;
-      board[row][col] = player;
-      for (const [r, c] of flips) {
-        board[r][c] = player;
-      }
-      return true;
-    }
-
-    function updateBoardUI() {
-      boardEl.innerHTML = "";
-      const validMoves = currentPlayer === HUMAN ? getValidMoves(HUMAN) : [];
-      const highlights = new Set(validMoves.map((move) => `${move.row}-${move.col}`));
-      for (let row = 0; row < SIZE; row++) {
-        for (let col = 0; col < SIZE; col++) {
-          const cell = document.createElement("div");
-          cell.className = `cell${highlights.has(`${row}-${col}`) ? " highlight" : ""}${board[row][col] ? "" : ""}`;
-          cell.dataset.row = row;
-          cell.dataset.col = col;
-          if (board[row][col] === HUMAN || board[row][col] === AI) {
-            const disk = document.createElement("div");
-            disk.className = "disk";
-            if (board[row][col] === AI) disk.classList.add("white");
-            cell.appendChild(disk);
-          }
-          if (board[row][col] !== 0) {
-            cell.classList.add("disabled");
-          }
-          boardEl.appendChild(cell);
-        }
-      }
-      updateCounts();
-    }
-
-    function updateCounts() {
-      let black = 0;
-      let white = 0;
-      board.forEach((row) => {
-        row.forEach((cell) => {
-          if (cell === HUMAN) black += 1;
-          if (cell === AI) white += 1;
-        });
+    function drawPlatforms() {
+      platforms.forEach((plat) => {
+        const gradient = ctx.createLinearGradient(plat.x, plat.y, plat.x, plat.y + plat.height);
+        gradient.addColorStop(0, "#ffd166");
+        gradient.addColorStop(1, "#f3841d");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+        ctx.strokeStyle = "#f6b05b";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
       });
-      blackCountEl.textContent = black;
-      whiteCountEl.textContent = white;
+
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(goalLine + 40, height - 180, 6, 140);
+      ctx.fillStyle = "#ff4b5c";
+      ctx.beginPath();
+      ctx.moveTo(goalLine + 46, height - 180);
+      ctx.lineTo(goalLine + 46 + 30, height - 160);
+      ctx.lineTo(goalLine + 46, height - 140);
+      ctx.fill();
     }
 
-    function setMessage(text) {
-      messageEl.textContent = text;
-    }
-
-    function checkGameOver() {
-      const humanMoves = getValidMoves(HUMAN);
-      const aiMoves = getValidMoves(AI);
-      if (!humanMoves.length && !aiMoves.length) {
-        const black = Number(blackCountEl.textContent);
-        const white = Number(whiteCountEl.textContent);
-        if (black > white) {
-          setMessage(`あなたの勝ち！${black} vs ${white}`);
-        } else if (white > black) {
-          setMessage(`AIの勝利... ${black} vs ${white}`);
-        } else {
-          setMessage(`引き分け！ ${black} vs ${white}`);
-        }
-        passBtn.disabled = true;
-        return true;
-      }
-      return false;
-    }
-
-    function handleHumanMove(row, col) {
-      if (currentPlayer !== HUMAN) return;
-      if (!applyMove(row, col, HUMAN)) return;
-      switchPlayer(AI);
-      setMessage("AIが考えています...");
-      updateBoardUI();
-      setTimeout(() => aiMove(), 450);
-    }
-
-    function switchPlayer(next) {
-      currentPlayer = next;
-      turnLabel.textContent = next === HUMAN ? "黒（あなた）" : "白（AI）";
-      passBtn.disabled = false;
-    }
-
-    function aiMove() {
-      const moves = getValidMoves(AI);
-      if (!moves.length) {
-        setMessage("AIがパスしました。あなたの番です。");
-        if (!getValidMoves(HUMAN).length) {
-          checkGameOver();
-          return;
-        }
-        switchPlayer(HUMAN);
-        updateBoardUI();
-        return;
-      }
-      let best = moves[0];
-      const cornerWeights = new Set(["0-0", "0-7", "7-0", "7-7"]);
-      moves.forEach((move) => {
-        const score = move.flips.length + (cornerWeights.has(`${move.row}-${move.col}`) ? 5 : 0);
-        const bestScore = best.flips.length + (cornerWeights.has(`${best.row}-${best.col}`) ? 5 : 0);
-        if (score > bestScore) {
-          best = move;
-        }
-      });
-      applyMove(best.row, best.col, AI);
-      switchPlayer(HUMAN);
-      updateBoardUI();
-      setMessage("AIが一手指しました。あなたの番です。");
-      if (checkGameOver()) return;
-    }
-
-    boardEl.addEventListener("click", (event) => {
-      const cell = event.target.closest(".cell");
-      if (!cell) return;
-      const row = Number(cell.dataset.row);
-      const col = Number(cell.dataset.col);
-      handleHumanMove(row, col);
-      if (checkGameOver()) return;
-    });
-
-    passBtn.addEventListener("click", () => {
-      if (currentPlayer !== HUMAN) return;
-      const humanMoves = getValidMoves(HUMAN);
-      if (!humanMoves.length) {
-        setMessage("パスしました。AIの番です。");
-        switchPlayer(AI);
-        updateBoardUI();
-        setTimeout(() => aiMove(), 400);
+    function handleInput() {
+      if (keys.ArrowLeft) {
+        hero.vx = Math.max(hero.vx - 0.9, -6);
+      } else if (keys.ArrowRight) {
+        hero.vx = Math.min(hero.vx + 0.9, 6);
       } else {
-        setMessage("置けるマスがあります。パスできません。");
+        hero.vx *= friction;
+      }
+      if (keys.ArrowUp || keys.Space) {
+        if (hero.grounded) {
+          hero.vy = -16;
+          hero.grounded = false;
+        }
+      }
+    }
+
+    function applyPhysics() {
+      hero.vy += gravity;
+      hero.x += hero.vx;
+      hero.y += hero.vy;
+
+      if (hero.x < 0) {
+        hero.x = 0;
+        hero.vx = 0;
+      } else if (hero.x + hero.width > width) {
+        hero.x = width - hero.width;
+        hero.vx = 0;
+      }
+
+      hero.grounded = false;
+      platforms.forEach((plat) => {
+        if (
+          hero.x + hero.width > plat.x &&
+          hero.x < plat.x + plat.width &&
+          hero.y + hero.height > plat.y &&
+          hero.y + hero.height < plat.y + plat.height + hero.vy &&
+          hero.vy >= 0
+        ) {
+          hero.y = plat.y - hero.height;
+          hero.vy = 0;
+          hero.grounded = true;
+        }
+      });
+
+      if (hero.y + hero.height > height) {
+        hero.y = height - hero.height;
+        hero.vy = 0;
+        hero.grounded = true;
+      }
+    }
+
+    function drawHero() {
+      ctx.fillStyle = hero.color;
+      ctx.fillRect(hero.x, hero.y, hero.width, hero.height);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(hero.x + 6, hero.y + 10, 8, 8);
+      ctx.fillRect(hero.x + hero.width - 14, hero.y + 10, 8, 8);
+    }
+
+    function drawProgress() {
+      const progress = Math.min(100, Math.max(0, Math.round((hero.x / (goalLine - hero.width)) * 100)));
+      document.getElementById("progress").textContent = `${progress}%`;
+    }
+
+    function checkGoal() {
+      if (hero.x + hero.width >= goalLine) {
+        ctx.font = "bold 36px sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.fillText("GOAL!", width / 2 - 80, 60);
+      }
+    }
+
+    function loop() {
+      drawBackground();
+      drawSunset();
+      drawPlatforms();
+      handleInput();
+      applyPhysics();
+      drawHero();
+      drawProgress();
+      checkGoal();
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener("keydown", (event) => {
+      const key = event.code;
+      if (key === "Space") {
+        keys.Space = true;
+      }
+      if (key === "ArrowUp") {
+        keys.ArrowUp = true;
+      }
+      if (key === "ArrowLeft") {
+        keys.ArrowLeft = true;
+      }
+      if (key === "ArrowRight") {
+        keys.ArrowRight = true;
       }
     });
 
-    resetBtn.addEventListener("click", () => {
-      createBoard();
-      currentPlayer = HUMAN;
-      passBtn.disabled = false;
-      turnLabel.textContent = "黒（あなた）";
-      setMessage("再スタート！黒からの一手をどうぞ。");
-      updateBoardUI();
+    window.addEventListener("keyup", (event) => {
+      const key = event.code;
+      if (key === "Space") {
+        keys.Space = false;
+      }
+      if (key === "ArrowUp") {
+        keys.ArrowUp = false;
+      }
+      if (key === "ArrowLeft") {
+        keys.ArrowLeft = false;
+      }
+      if (key === "ArrowRight") {
+        keys.ArrowRight = false;
+      }
     });
 
-    createBoard();
-    updateBoardUI();
+    loop();
   </script>
 </body>
 </html>
