@@ -30,6 +30,24 @@
       margin-bottom: 1.5rem;
       color: #555;
     }
+    figure {
+      margin: 1.5rem auto;
+      width: min(20rem, 80vw);
+      overflow: hidden;
+      border-radius: 1.25rem;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+      background: #fff;
+    }
+    figure img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    figure figcaption {
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      color: #333;
+    }
     .actions a {
       margin: 0 0.35rem;
       text-decoration: none;
@@ -51,6 +69,10 @@
   <main>
     <h1>Welcome to my space</h1>
     <p>Personal experiments, essays, and snapshots from the things I build.</p>
+    <figure>
+      <img src="https://images.dog.ceo/breeds/hound-afghan/n02088094_1003.jpg" alt="かわいい犬">
+      <figcaption>Current mood: lazy afternoon with a good pup.</figcaption>
+    </figure>
     <div class="actions">
       <a href="https://github.com/" target="_blank" rel="noreferrer">Visit my projects</a>
       <a href="mailto:hello@example.com">Say hello</a>
@@ -58,4 +80,3 @@
   </main>
 </body>
 </html>
-
