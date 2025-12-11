@@ -3,38 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>My GitHub Pages Site</title>
+  <title>Evangelion Cast</title>
   <style>
+    :root {
+      background-color: #0a1931;
+      color: #f4f6fb;
+      font-family: "Noto Sans JP", system-ui, sans-serif;
+    }
     body {
       margin: 0;
       min-height: 100vh;
-      background: #0c4a94;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-family: "Noto Sans JP", system-ui, sans-serif;
     }
-    main {
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.25rem;
-      margin-bottom: 0.5rem;
-    }
-    p {
-      font-size: 1.1rem;
-      max-width: 28rem;
+    .page {
+      padding: 3rem 1.5rem;
+      max-width: 960px;
       margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      font-size: clamp(2.5rem, 5vw, 3.25rem);
+      margin-bottom: 0.25rem;
+    }
+    header p {
+      margin: 0;
+      color: #a7b5d8;
+    }
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    article {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      box-shadow: 0 15px 30px rgba(5, 10, 25, 0.35);
+      min-height: 220px;
+    }
+    article h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.5rem;
+    }
+    article strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #88b3ff;
+    }
+    article p {
+      margin: 0.25rem 0;
+      color: #dfe5f3;
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>My site, simplified</h1>
-    <p>
-      Just a calm blue frame for your ideas.
-    </p>
-  </main>
+  <div class="page">
+    <header>
+      <h1>Neon Genesis Evangelion</h1>
+      <p>主要キャラクター紹介</p>
+    </header>
+    <section class="grid">
+      <article>
+        <h2>碇シンジ</h2>
+        <strong>第1の子供 / エヴァ初号機</strong>
+        <p>内向的で不安を抱えながらも、他人と繋がりを求め続ける14歳のパイロット。</p>
+        <p>母との死別や父・ゲンドウとの距離感が物語の軸を作る。</p>
+      </article>
+      <article>
+        <h2>惣流・アスカ・ラングレー</h2>
+        <strong>第2の子供 / エヴァ2号機</strong>
+        <p>自信家で強気。能力に長けるが、心の裏側では評価や愛情を渇望している。</p>
+        <p>日独混血の背景と母との関係が彼女の戦い方に影を落とす。</p>
+      </article>
+      <article>
+        <h2>綾波レイ</h2>
+        <strong>第3の子供 / エヴァ零号機</strong>
+        <p>感情をほとんど見せない謎多き少女。ゲンドウへの忠誠心が強い。</p>
+        <p>特異な起源と自己認識の模索が、物語の多くを哲学的にする。</p>
+      </article>
+      <article>
+        <h2>葛城ミサト</h2>
+        <strong>ネルフ作戦部長</strong>
+        <p>情熱的で子供のような反面、指揮官として冷静な判断も下す。</p>
+        <p>シンジの精神的支えであり、過去の悲劇が彼女の生き方を照らす。</p>
+      </article>
+    </section>
+  </div>
 </body>
 </html>
