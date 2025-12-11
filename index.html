@@ -6,92 +6,139 @@
   <title>Evangelion Cast</title>
   <style>
     :root {
-      background-color: #0a1931;
-      color: #f4f6fb;
       font-family: "Noto Sans JP", system-ui, sans-serif;
+      background-color: #040b1c;
+      color: #f4f6fb;
+    }
+    * {
+      box-sizing: border-box;
     }
     body {
       margin: 0;
       min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    .video-container {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+    .video-container::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(4, 11, 28, 0.6), rgba(3, 10, 24, 0.85));
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .page {
-      padding: 3rem 1.5rem;
-      max-width: 960px;
+      position: relative;
+      z-index: 1;
+      padding: 3rem 1.5rem 4rem;
+      max-width: 1100px;
       margin: 0 auto;
     }
     header {
       text-align: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 3rem;
     }
     header h1 {
-      font-size: clamp(2.5rem, 5vw, 3.25rem);
+      font-size: clamp(2.75rem, 5vw, 3.5rem);
+      letter-spacing: 0.12em;
       margin-bottom: 0.25rem;
+      text-transform: uppercase;
     }
     header p {
       margin: 0;
       color: #a7b5d8;
+      letter-spacing: 0.08em;
     }
     .grid {
       display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
     article {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 1.25rem;
-      padding: 1.5rem;
-      box-shadow: 0 15px 30px rgba(5, 10, 25, 0.35);
-      min-height: 220px;
+      background: rgba(7, 19, 40, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 1.5rem;
+      padding: 1.75rem;
+      box-shadow: 0 15px 30px rgba(1, 6, 18, 0.6);
+      backdrop-filter: blur(12px);
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
     }
     article h2 {
-      margin: 0 0 0.35rem;
-      font-size: 1.5rem;
+      margin: 0;
+      font-size: 1.65rem;
     }
     article strong {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.65rem;
       color: #88b3ff;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
     }
     article p {
-      margin: 0.25rem 0;
+      margin: 0;
       color: #dfe5f3;
-      line-height: 1.4;
+      line-height: 1.5;
+    }
+    .note {
+      margin-top: 3rem;
+      text-align: center;
+      color: #a1b4dc;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
     }
   </style>
 </head>
 <body>
+  <div class="video-container" aria-hidden="true">
+    <video autoplay muted loop playsinline>
+      <source src="https://cdn.pixabay.com/download/video/2022/06/20/07-50-42-192_640x360.mp4?attachment" type="video/mp4" />
+    </video>
+  </div>
   <div class="page">
     <header>
       <h1>Neon Genesis Evangelion</h1>
-      <p>主要キャラクター紹介</p>
+      <p>使徒との交戦を背に、主要キャラを紹介</p>
     </header>
     <section class="grid">
       <article>
         <h2>碇シンジ</h2>
-        <strong>第1の子供 / エヴァ初号機</strong>
-        <p>内向的で不安を抱えながらも、他人と繋がりを求め続ける14歳のパイロット。</p>
-        <p>母との死別や父・ゲンドウとの距離感が物語の軸を作る。</p>
+        <strong>第1の子供 / 初号機</strong>
+        <p>意思よりも他者の期待に反応しがちだが、撤退も再挑戦も同じくらい人間的。</p>
+        <p>エヴァのコクピットで吠える叫びは、彼の精神の叫びとも重なる。</p>
       </article>
       <article>
         <h2>惣流・アスカ・ラングレー</h2>
-        <strong>第2の子供 / エヴァ2号機</strong>
-        <p>自信家で強気。能力に長けるが、心の裏側では評価や愛情を渇望している。</p>
-        <p>日独混血の背景と母との関係が彼女の戦い方に影を落とす。</p>
+        <strong>第2の子供 / 2号機</strong>
+        <p>プライド高く、爆発的な戦闘スタイルでしばしば孤立するが、その裏では仲間を渇望。</p>
+        <p>熟練のパイロットとしての冷静さと、実は脆い自己肯定感が混在する。</p>
       </article>
       <article>
         <h2>綾波レイ</h2>
-        <strong>第3の子供 / エヴァ零号機</strong>
-        <p>感情をほとんど見せない謎多き少女。ゲンドウへの忠誠心が強い。</p>
-        <p>特異な起源と自己認識の模索が、物語の多くを哲学的にする。</p>
+        <strong>第3の子供 / 零号機</strong>
+        <p>感情の起伏が少なく、まるで使徒のように静か。だがその存在自体が物語の核心。</p>
+        <p>「わたし」が何かを問い続ける姿勢が、人間とエヴァの境界を浮き彫りにする。</p>
       </article>
       <article>
         <h2>葛城ミサト</h2>
         <strong>ネルフ作戦部長</strong>
-        <p>情熱的で子供のような反面、指揮官として冷静な判断も下す。</p>
-        <p>シンジの精神的支えであり、過去の悲劇が彼女の生き方を照らす。</p>
+        <p>玩具のような外見とは裏腹に、指揮室から兵装と人命の釣り合いを見極める。</p>
+        <p>シンジたちを親のように見守りつつ、往復書簡のような弱さと強さを併せ持つ。</p>
       </article>
     </section>
+    <p class="note">背景映像はアニメ「ヱヴァンゲリヲン」と戦闘イメージの雰囲気を想起させる演出です。</p>
   </div>
 </body>
 </html>
