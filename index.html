@@ -125,6 +125,21 @@
       { x: 780, y: height - 80, width: 140, height: 16 },
     ];
 
+    const enemyPlatform = platforms[2];
+    const enemy = {
+      width: 32,
+      height: 32,
+      x: enemyPlatform.x + 24,
+      y: enemyPlatform.y - 32,
+      vx: 2.2,
+      patrolStart: enemyPlatform.x + 10,
+      patrolEnd: enemyPlatform.x + enemyPlatform.width - 32 - 10,
+      color: "#ff4d6d",
+    };
+
+    let hitMessageTimer = 0;
+    const hitMessageDuration = 60;
+
     const goalLine = width - 60;
 
     const keys = {
@@ -154,6 +169,53 @@
       grd.addColorStop(1, "rgba(255, 224, 102, 0)");
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, width, height);
+    }
+
+    function drawEnemy() {
+      ctx.fillStyle = enemy.color;
+      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(enemy.x + 6, enemy.y + 6, 6, 6);
+      ctx.fillRect(enemy.x + enemy.width - 12, enemy.y + 6, 6, 6);
+    }
+
+    const heroSpawn = { x: hero.x, y: hero.y };
+
+    function respawnHero() {
+      hero.x = heroSpawn.x;
+      hero.y = heroSpawn.y;
+      hero.vx = 0;
+      hero.vy = 0;
+      hero.grounded = false;
+    }
+
+    function updateEnemy() {
+      enemy.x += enemy.vx;
+      if (enemy.x <= enemy.patrolStart || enemy.x + enemy.width >= enemy.patrolEnd) {
+        enemy.vx *= -1;
+      }
+    }
+
+    function checkEnemyCollision() {
+      if (
+        hero.x + hero.width > enemy.x &&
+        hero.x < enemy.x + enemy.width &&
+        hero.y + hero.height > enemy.y &&
+        hero.y < enemy.y + enemy.height
+      ) {
+        respawnHero();
+        hitMessageTimer = hitMessageDuration;
+      }
+    }
+
+    function drawHitMessage() {
+      if (hitMessageTimer > 0) {
+        ctx.font = "bold 26px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fillText("ENEMY HIT!", width / 2, 48);
+        hitMessageTimer -= 1;
+      }
     }
 
     function drawPlatforms() {
@@ -254,11 +316,15 @@
       drawBackground();
       drawSunset();
       drawPlatforms();
+      updateEnemy();
+      drawEnemy();
       handleInput();
       applyPhysics();
+      checkEnemyCollision();
       drawHero();
       drawProgress();
       checkGoal();
+      drawHitMessage();
       requestAnimationFrame(loop);
     }
 
