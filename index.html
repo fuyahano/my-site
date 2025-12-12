@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>地球を検証 — GeoGuessr 風チャレンジ</title>
+  <title>スタック・スカイランナー</title>
   <style>
     :root {
       font-family: "Noto Sans JP", "Inter", system-ui, sans-serif;
-      color: #f7fbff;
-      background-color: #02060f;
+      color: #f8fbff;
+      background-color: #01030b;
     }
     * {
       box-sizing: border-box;
@@ -16,15 +16,16 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at top, #2e81ff 0%, transparent 55%),
-        linear-gradient(180deg, #02132b, #02060f 65%);
+      background: radial-gradient(circle at 20% 20%, rgba(80, 135, 255, 0.2), transparent 45%),
+        radial-gradient(circle at 80% 0%, rgba(255, 149, 255, 0.08), transparent 35%),
+        linear-gradient(180deg, #040714, #01030b 60%);
       display: flex;
       justify-content: center;
       align-items: flex-start;
       padding: 2rem 1rem 3rem;
     }
     .app-shell {
-      width: min(1100px, 100%);
+      width: min(1200px, 100%);
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
@@ -34,111 +35,146 @@
     }
     header h1 {
       margin: 0;
-      font-size: clamp(2.5rem, 4vw, 3.75rem);
-      letter-spacing: 0.2em;
+      font-size: clamp(2.8rem, 4vw, 4rem);
+      letter-spacing: 0.3em;
       text-transform: uppercase;
     }
     header p {
       margin: 0.75rem auto 0;
-      max-width: 560px;
-      color: #b5c7f5;
+      max-width: 640px;
+      color: #8fa3ff;
       font-size: 1.05rem;
+      line-height: 1.5;
     }
-    .game-panel {
+    .game-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
       gap: 1.5rem;
+    }
+    .canvas-shell {
+      position: relative;
     }
     canvas {
       width: 100%;
       height: auto;
-      border-radius: 1.75rem;
-      background: #011835;
-      box-shadow: 0 25px 45px rgba(2, 5, 25, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1.5rem;
+      background: #020a1f;
+      box-shadow: 0 25px 60px rgba(2, 5, 25, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       display: block;
     }
-    .info-panel {
-      background: rgba(4, 12, 32, 0.85);
-      border-radius: 1.5rem;
-      padding: 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    .canvas-shell::after {
+      content: "↑ Space / クリックでブロックを落とす";
+      position: absolute;
+      left: 50%;
+      top: 1rem;
+      transform: translateX(-50%);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      letter-spacing: 0.2em;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .side-panel {
       display: flex;
       flex-direction: column;
       gap: 1rem;
     }
-    .info-card {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 0.9rem 1rem;
-      border-radius: 1rem;
+    .panel-card {
+      background: rgba(8, 17, 38, 0.95);
+      border-radius: 1.25rem;
+      padding: 1.3rem 1.25rem;
       border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 0 35px rgba(255, 255, 255, 0.04);
     }
-    .info-card .label {
-      font-size: 0.75rem;
-      letter-spacing: 0.25em;
-      color: #86b0ff;
+    .panel-card .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      color: #7fb0ff;
       margin: 0;
     }
-    .info-value {
-      margin: 0.25rem 0 0;
-      font-size: 1.35rem;
-      font-weight: 600;
+    .panel-card .value {
+      margin: 0.5rem 0 0;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #fffdf7;
     }
-    .hint-text {
-      margin: 0.25rem 0 0;
-      font-size: 1rem;
+    .panel-card .note {
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+      color: #c7d5ff;
       line-height: 1.4;
-      color: #e2ecff;
     }
-    #nextBtn {
-      margin-top: 0.5rem;
-      width: 100%;
-      padding: 0.95rem;
-      border-radius: 0.9rem;
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    button {
       border: none;
-      background: linear-gradient(120deg, #5cc7ff, #3f7bff);
-      color: #fff;
+      border-radius: 0.9rem;
+      padding: 0.95rem;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+      color: #fff;
     }
-    #nextBtn:active {
+    #dropBtn {
+      background: linear-gradient(135deg, #facc15, #f97316);
+      box-shadow: 0 12px 30px rgba(250, 115, 22, 0.3);
+    }
+    #restartBtn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+    button:active {
       transform: translateY(1px);
     }
-    #nextBtn:hover {
-      box-shadow: 0 10px 25px rgba(95, 160, 255, 0.6);
+    button:hover {
+      box-shadow: 0 18px 35px rgba(255, 255, 255, 0.15);
     }
-    .history {
-      max-height: 200px;
+    .status-line {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #e4ecff;
+      min-height: 2rem;
+    }
+    .status-line strong {
+      color: #fff;
+    }
+    .history-list {
+      max-height: 180px;
       overflow-y: auto;
-    }
-    .history ul {
-      margin: 0.5rem 0 0;
+      margin: 0.35rem 0 0;
       padding: 0;
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.45rem;
     }
-    .history li {
-      font-size: 0.9rem;
-      color: #dfe7ff;
-      padding: 0.35rem 0.5rem;
+    .history-list li {
+      font-size: 0.85rem;
+      color: #d1d9ff;
+      padding: 0.35rem 0.75rem;
       border-radius: 0.75rem;
       background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       display: flex;
       justify-content: space-between;
-      gap: 0.5rem;
+      letter-spacing: 0.1em;
     }
-    .history strong {
+    .history-list span {
       color: #fff;
     }
     @media (max-width: 900px) {
-      .game-panel {
+      .game-layout {
         grid-template-columns: 1fr;
+      }
+      .canvas-shell::after {
+        top: 0.4rem;
       }
     }
   </style>
@@ -146,333 +182,299 @@
 <body>
   <main class="app-shell">
     <header>
-      <h1>GeoGlance</h1>
-      <p>地球を一望しながら、ヒントを頼りに隠れた都市を当てて距離を競うチャレンジです。クリックした場所からどれだけ近いかを確かめましょう。</p>
+      <h1>Stack Sky Runner</h1>
+      <p>ブロックをタイミングよく落としてタワーを積み上げ、カメラ位置を上げながらどこまでの高さを記録できるか競います。</p>
     </header>
-    <section class="game-panel">
-      <canvas id="map" width="960" height="520" aria-label="世界地図を模したキャンバスです"></canvas>
-      <div class="info-panel">
-        <div class="info-card">
-          <p class="label">ヒント</p>
-          <p id="clueText" class="hint-text"></p>
+    <section class="game-layout">
+      <div class="canvas-shell">
+        <canvas id="stage" width="980" height="620"></canvas>
+      </div>
+      <div class="side-panel">
+        <div class="panel-card">
+          <p class="label">現在の高さ</p>
+          <p id="towerHeight" class="value">0 階</p>
+          <p class="note">成功するとブロックが次々上昇。ズレすぎるとゲームオーバーです。</p>
         </div>
-        <div class="info-card">
-          <p class="label">現在のラウンド</p>
-          <p id="roundCount" class="info-value">0</p>
+        <div class="panel-card">
+          <p class="label">ベスト記録</p>
+          <p id="bestHeight" class="value">0 階</p>
         </div>
-        <div class="info-card">
-          <p class="label">直近の距離</p>
-          <p id="distanceText" class="info-value">—</p>
+        <div class="status-line">
+          <span id="statusText">準備完了。クリックでブロックを落としてね！</span>
         </div>
-        <div class="info-card">
-          <p class="label">ベストアンサー</p>
-          <p id="bestDistance" class="info-value">—</p>
+        <div class="button-group">
+          <button id="dropBtn">ブロックを落とす</button>
+          <button id="restartBtn">最初から</button>
         </div>
-        <div class="info-card">
-          <p class="label">正解</p>
-          <p id="answerText" class="info-value">—</p>
-        </div>
-        <button id="nextBtn">次のミッション</button>
-        <div class="history">
+        <div class="panel-card">
           <p class="label">履歴</p>
-          <ul id="historyList"></ul>
+          <ul id="historyList" class="history-list"></ul>
         </div>
       </div>
     </section>
   </main>
   <script>
-    const canvas = document.getElementById("map");
+    const canvas = document.getElementById("stage");
     const ctx = canvas.getContext("2d");
     const width = canvas.width;
     const height = canvas.height;
+    const blockHeight = 32;
+    const palette = ["#ff5f6d", "#facc15", "#4ade80", "#22d3ee", "#a855f7", "#fdba74"];
 
-    const locations = [
-      {
-        name: "パリ, フランス",
-        clue: "セーヌ河沿いで光り輝く鉄の塔がある都市",
-        lat: 48.8566,
-        lon: 2.3522,
-      },
-      {
-        name: "リオデジャネイロ, ブラジル",
-        clue: "湾岸に抱かれ、丘の上の巨大キリスト像が見渡す都市",
-        lat: -22.9068,
-        lon: -43.1729,
-      },
-      {
-        name: "モスクワ, ロシア",
-        clue: "赤の広場とクレムリンに近く、白い玉ねぎ屋根が映える都市",
-        lat: 55.7558,
-        lon: 37.6173,
-      },
-      {
-        name: "シドニー, オーストラリア",
-        clue: "湾とオペラハウスの帆がアイコンになっている南半球の港町",
-        lat: -33.8688,
-        lon: 151.2093,
-      },
-      {
-        name: "ナイロビ, ケニア",
-        clue: "サバンナに近い標高の高い首都で、豊かな野生がすぐ近くに",
-        lat: -1.2921,
-        lon: 36.8219,
-      },
-      {
-        name: "トロント, カナダ",
-        clue: "世界一高い塔 CN タワーが湖畔でそびえる多文化都市",
-        lat: 43.6532,
-        lon: -79.3832,
-      },
-      {
-        name: "ソウル, 韓国",
-        clue: "漢江のほとりで、古い城壁と近代都市が交差する場所",
-        lat: 37.5665,
-        lon: 126.978,
-      },
-      {
-        name: "カイロ, エジプト",
-        clue: "ナイル川沿い、ピラミッドと共に歴史を刻む都市",
-        lat: 30.0444,
-        lon: 31.2357,
-      },
-      {
-        name: "メキシコシティ, メキシコ",
-        clue: "高原に広がり、フリーダ・カーロゆかりの文化が息づく首都",
-        lat: 19.4326,
-        lon: -99.1332,
-      },
-      {
-        name: "ニューヨーク, アメリカ",
-        clue: "自由の女神が見守る島々と摩天楼が連なる東海岸の大都市",
-        lat: 40.7128,
-        lon: -74.006,
-      },
-    ];
-
-    const continentShapes = [
-      {
-        color: "rgba(255, 255, 255, 0.15)",
-        points: [
-          [0.05, 0.55],
-          [0.25, 0.45],
-          [0.35, 0.55],
-          [0.28, 0.7],
-          [0.15, 0.65],
-        ],
-      },
-      {
-        color: "rgba(255, 255, 255, 0.13)",
-        points: [
-          [0.35, 0.43],
-          [0.4, 0.32],
-          [0.52, 0.3],
-          [0.58, 0.38],
-          [0.5, 0.48],
-          [0.4, 0.45],
-        ],
-      },
-      {
-        color: "rgba(255, 255, 255, 0.1)",
-        points: [
-          [0.1, 0.25],
-          [0.2, 0.2],
-          [0.38, 0.25],
-          [0.45, 0.22],
-          [0.47, 0.12],
-          [0.3, 0.05],
-        ],
-      },
-      {
-        color: "rgba(255, 255, 255, 0.12)",
-        points: [
-          [0.55, 0.58],
-          [0.7, 0.52],
-          [0.8, 0.4],
-          [0.88, 0.4],
-          [0.92, 0.5],
-          [0.82, 0.65],
-          [0.68, 0.68],
-        ],
-      },
-    ];
+    function createBaseBlock() {
+      return {
+        x: 0,
+        z: 0,
+        y: blockHeight,
+        width: 320,
+        depth: 200,
+        height: blockHeight,
+        color: "#6366f1",
+      };
+    }
 
     const state = {
+      stack: [createBaseBlock()],
       current: null,
-      guess: null,
-      rounds: 0,
-      bestDistance: null,
-      history: [],
+      gameOver: false,
+      bestHeight: 0,
+      lastShots: [],
     };
 
-    const clueText = document.getElementById("clueText");
-    const roundCount = document.getElementById("roundCount");
-    const distanceText = document.getElementById("distanceText");
-    const bestDistance = document.getElementById("bestDistance");
-    const answerText = document.getElementById("answerText");
+    const towerHeightEl = document.getElementById("towerHeight");
+    const bestHeightEl = document.getElementById("bestHeight");
+    const statusText = document.getElementById("statusText");
     const historyList = document.getElementById("historyList");
-    const nextBtn = document.getElementById("nextBtn");
+    const dropBtn = document.getElementById("dropBtn");
+    const restartBtn = document.getElementById("restartBtn");
 
-    function xyToLatLng(x, y) {
-      const lng = (x / width) * 360 - 180;
-      const lat = 90 - (y / height) * 180;
-      return { lat, lon: lng };
+    function createMover(reference, axis) {
+      return {
+        x: reference.x,
+        z: reference.z,
+        y: reference.y + blockHeight,
+        width: reference.width,
+        depth: reference.depth,
+        height: blockHeight,
+        axis,
+        speed: 3 + state.stack.length * 0.15,
+        color: palette[Math.floor(Math.random() * palette.length)],
+      };
     }
 
-    function latLngToXY(lat, lon) {
-      const x = ((lon + 180) / 360) * width;
-      const y = ((90 - lat) / 180) * height;
-      return { x, y };
+    function spawnNextBlock(axis) {
+      const last = state.stack[state.stack.length - 1];
+      state.current = createMover(last, axis);
     }
 
-    function haversine(lat1, lon1, lat2, lon2) {
-      const toRad = (deg) => (deg * Math.PI) / 180;
-      const R = 6371;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) *
-          Math.cos(toRad(lat2)) *
-          Math.sin(dLon / 2) *
-          Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
+    function resetGame() {
+      state.stack = [createBaseBlock()];
+      state.gameOver = false;
+      state.lastShots = [];
+      spawnNextBlock("x");
+      updateStats();
     }
 
-    function drawMap() {
-      const grd = ctx.createLinearGradient(0, 0, 0, height);
-      grd.addColorStop(0, "#04224d");
-      grd.addColorStop(1, "#010b1f");
-      ctx.fillStyle = grd;
+    function shadeColor(color, percent) {
+      const f = parseInt(color.slice(1), 16);
+      const t = percent < 0 ? 0 : 255;
+      const p = Math.abs(percent) / 100;
+      let R = f >> 16;
+      let G = (f >> 8) & 0xff;
+      let B = f & 0xff;
+      R = Math.round(R + (t - R) * p);
+      G = Math.round(G + (t - G) * p);
+      B = Math.round(B + (t - B) * p);
+      return `#${(R << 16 | G << 8 | B).toString(16).padStart(6, "0")}`;
+    }
+
+    function project(x, y, z) {
+      const scale = 0.55;
+      const isoX = (x - z) * scale;
+      const isoY = (x + z) * scale * 0.26;
+      return {
+        x: width / 2 + isoX,
+        y: height - y * 0.7 - isoY - 60,
+      };
+    }
+
+    function drawBlock(block, isCurrent = false) {
+      const w = block.width;
+      const d = block.depth;
+      const h = block.height;
+      const topY = block.y;
+      const bottomY = topY - h;
+      const points = {
+        topLeft: project(block.x - w / 2, topY, block.z - d / 2),
+        topRight: project(block.x + w / 2, topY, block.z - d / 2),
+        topFar: project(block.x + w / 2, topY, block.z + d / 2),
+        topBack: project(block.x - w / 2, topY, block.z + d / 2),
+        bottomLeft: project(block.x - w / 2, bottomY, block.z - d / 2),
+        bottomRight: project(block.x + w / 2, bottomY, block.z - d / 2),
+        bottomFar: project(block.x + w / 2, bottomY, block.z + d / 2),
+        bottomBack: project(block.x - w / 2, bottomY, block.z + d / 2),
+      };
+      const topColor = isCurrent ? shadeColor(block.color, 25) : block.color;
+      const leftColor = shadeColor(block.color, -8);
+      const rightColor = shadeColor(block.color, -18);
+
+      ctx.beginPath();
+      ctx.moveTo(points.topLeft.x, points.topLeft.y);
+      ctx.lineTo(points.topRight.x, points.topRight.y);
+      ctx.lineTo(points.topFar.x, points.topFar.y);
+      ctx.lineTo(points.topBack.x, points.topBack.y);
+      ctx.closePath();
+      ctx.fillStyle = topColor;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(points.topLeft.x, points.topLeft.y);
+      ctx.lineTo(points.topBack.x, points.topBack.y);
+      ctx.lineTo(points.bottomBack.x, points.bottomBack.y);
+      ctx.lineTo(points.bottomLeft.x, points.bottomLeft.y);
+      ctx.closePath();
+      ctx.fillStyle = leftColor;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(points.topRight.x, points.topRight.y);
+      ctx.lineTo(points.topFar.x, points.topFar.y);
+      ctx.lineTo(points.bottomFar.x, points.bottomFar.y);
+      ctx.lineTo(points.bottomRight.x, points.bottomRight.y);
+      ctx.closePath();
+      ctx.fillStyle = rightColor;
+      ctx.fill();
+    }
+
+    function drawScene() {
+      const gradient = ctx.createLinearGradient(0, 0, 0, height);
+      gradient.addColorStop(0, "#0a1226");
+      gradient.addColorStop(1, "#01030b");
+      ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
       ctx.save();
-      ctx.strokeStyle = "rgba(255,255,255,0.1)";
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
       ctx.lineWidth = 1;
-      for (let i = 1; i <= 12; i++) {
-        const x = (width / 12) * i;
+      for (let i = 0; i < 12; i++) {
         ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
+        ctx.moveTo((width / 12) * i, 0);
+        ctx.lineTo((width / 12) * i, height);
         ctx.stroke();
       }
-      for (let i = 1; i <= 6; i++) {
-        const y = (height / 6) * i;
+      for (let j = 0; j < 8; j++) {
         ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
+        ctx.moveTo(0, (height / 8) * j);
+        ctx.lineTo(width, (height / 8) * j);
         ctx.stroke();
       }
       ctx.restore();
 
-      continentShapes.forEach((shape) => {
-        ctx.beginPath();
-        shape.points.forEach((point, index) => {
-          const px = point[0] * width;
-          const py = point[1] * height;
-          if (index === 0) {
-            ctx.moveTo(px, py);
-          } else {
-            ctx.lineTo(px, py);
-          }
-        });
-        ctx.closePath();
-        ctx.fillStyle = shape.color;
-        ctx.fill();
-      });
-
-      if (state.current && state.guess) {
-        const targetPoint = latLngToXY(state.current.lat, state.current.lon);
-        ctx.fillStyle = "#fbc02d";
-        ctx.beginPath();
-        ctx.arc(targetPoint.x, targetPoint.y, 7, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "rgba(255, 178, 15, 0.7)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(targetPoint.x - 12, targetPoint.y);
-        ctx.lineTo(targetPoint.x + 12, targetPoint.y);
-        ctx.moveTo(targetPoint.x, targetPoint.y - 12);
-        ctx.lineTo(targetPoint.x, targetPoint.y + 12);
-        ctx.stroke();
+      state.stack.forEach((block) => drawBlock(block));
+      if (state.current) {
+        drawBlock(state.current, true);
       }
 
-      if (state.guess) {
-        const guessPoint = latLngToXY(state.guess.lat, state.guess.lon);
-        ctx.fillStyle = "#ff5f8e";
-        ctx.beginPath();
-        ctx.arc(guessPoint.x, guessPoint.y, 9, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "rgba(255, 95, 142, 0.8)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(guessPoint.x - 14, guessPoint.y);
-        ctx.lineTo(guessPoint.x + 14, guessPoint.y);
-        ctx.moveTo(guessPoint.x, guessPoint.y - 14);
-        ctx.lineTo(guessPoint.x, guessPoint.y + 14);
-        ctx.stroke();
+      if (state.gameOver) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+        ctx.fillRect(0, height / 2 - 60, width, 120);
+        ctx.font = "bold 42px Inter, sans-serif";
+        ctx.fillStyle = "#ffe066";
+        ctx.textAlign = "center";
+        ctx.fillText("GAME OVER", width / 2, height / 2 - 4);
+        ctx.font = "20px Inter, sans-serif";
+        ctx.fillStyle = "rgba(255,255,255,0.8)";
+        ctx.fillText("リセットして再挑戦！", width / 2, height / 2 + 28);
       }
     }
 
-    function updateUI() {
-      clueText.textContent = state.current?.clue ?? "クリックして新しいミッションを始めよう。";
-      roundCount.textContent = state.rounds;
-      distanceText.textContent = state.guess
-        ? `${state.lastDistance.toFixed(1)} km`
-        : "—";
-      bestDistance.textContent = state.bestDistance ? `${state.bestDistance.toFixed(1)} km` : "—";
-      answerText.textContent = state.guess ? state.current.name : "—";
+    function updateMover() {
+      if (!state.current || state.gameOver) {
+        return;
+      }
+      const axis = state.current.axis;
+      state.current[axis] += state.current.speed;
+      if (state.current[axis] > 420 || state.current[axis] < -420) {
+        state.current.speed *= -1;
+      }
+    }
 
-      historyList.innerHTML = state.history
-        .map(
-          (entry) => `
-            <li>
-              <strong>${entry.name}</strong>
-              <span>${entry.distance.toFixed(1)} km</span>
-            </li>
-          `
-        )
+    function recordShot(entry) {
+      state.lastShots.unshift(entry);
+      if (state.lastShots.length > 5) {
+        state.lastShots.pop();
+      }
+      historyList.innerHTML = state.lastShots
+        .map((entry) => `<li><strong>${entry.height} 階</strong><span>${entry.distance.toFixed(1)} km</span></li>`)
         .join("");
     }
 
-    function startRound() {
-      state.rounds += 1;
-      state.current = locations[Math.floor(Math.random() * locations.length)];
-      state.guess = null;
-      state.lastDistance = null;
-      drawMap();
-      updateUI();
+    function updateStats() {
+      const height = state.stack.length - 1;
+      towerHeightEl.textContent = `${height} 階`;
+      bestHeightEl.textContent = `${Math.max(state.bestHeight, height)} 階`;
+      statusText.textContent = state.gameOver
+        ? "ゲームオーバー。最初から積み上げよう。"
+        : "タイミングよくブロックを落としていこう！";
     }
 
-    canvas.addEventListener("click", (event) => {
-      if (!state.current) {
+    function dropBlock() {
+      if (!state.current || state.gameOver) {
         return;
       }
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const guess = xyToLatLng(x, y);
-      state.guess = guess;
-      const distance = haversine(state.current.lat, state.current.lon, guess.lat, guess.lon);
-      state.lastDistance = distance;
-      if (state.bestDistance === null || distance < state.bestDistance) {
-        state.bestDistance = distance;
+      const last = state.stack[state.stack.length - 1];
+      const axis = state.current.axis;
+      const sizeProp = axis === "x" ? "width" : "depth";
+      const currentMin = state.current[axis] - state.current[sizeProp] / 2;
+      const currentMax = state.current[axis] + state.current[sizeProp] / 2;
+      const lastMin = last[axis] - last[sizeProp] / 2;
+      const lastMax = last[axis] + last[sizeProp] / 2;
+      const overlapStart = Math.max(currentMin, lastMin);
+      const overlapEnd = Math.min(currentMax, lastMax);
+      const overlap = overlapEnd - overlapStart;
+      if (overlap <= 4) {
+        state.gameOver = true;
+        state.bestHeight = Math.max(state.bestHeight, state.stack.length - 1);
+        updateStats();
+        return;
       }
-      state.history.unshift({ name: state.current.name, distance });
-      if (state.history.length > 5) {
-        state.history.pop();
+      const nextAxis = axis === "x" ? "z" : "x";
+      const nextBlock = {
+        x: axis === "x" ? (overlapStart + overlapEnd) / 2 : last.x,
+        z: axis === "x" ? last.z : (overlapStart + overlapEnd) / 2,
+        y: last.y + blockHeight,
+        width: axis === "x" ? overlap : last.width,
+        depth: axis === "x" ? last.depth : overlap,
+        height: blockHeight,
+        color: state.current.color,
+      };
+      state.stack.push(nextBlock);
+      state.bestHeight = Math.max(state.bestHeight, state.stack.length - 1);
+      recordShot({ height: state.stack.length - 1, distance: overlap });
+      spawnNextBlock(nextAxis);
+      updateStats();
+    }
+
+    dropBtn.addEventListener("click", dropBlock);
+    restartBtn.addEventListener("click", resetGame);
+    canvas.addEventListener("click", dropBlock);
+    document.addEventListener("keydown", (event) => {
+      if (event.code === "Space") {
+        event.preventDefault();
+        dropBlock();
       }
-      drawMap();
-      updateUI();
     });
 
-    nextBtn.addEventListener("click", () => {
-      startRound();
-    });
+    function loop() {
+      updateMover();
+      drawScene();
+      requestAnimationFrame(loop);
+    }
 
-    drawMap();
-    updateUI();
-    startRound();
+    resetGame();
+    loop();
   </script>
 </body>
 </html>
