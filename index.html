@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Acura NSX Studio</title>
+  <title>第二世代 Acura NSX Type S</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
     :root {
-      color: #f8fbff;
-      background-color: #01030b;
       font-family: 'Space Grotesk', 'Noto Sans JP', system-ui, sans-serif;
+      color: #f8fafc;
+      background: #01030b;
     }
     * {
       box-sizing: border-box;
@@ -17,263 +17,325 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at 20% 10%, rgba(56,189,248,0.2), transparent 50%),
-        radial-gradient(circle at 70% 0%, rgba(236,72,153,0.25), transparent 60%),
-        linear-gradient(180deg, #030712 0%, #01030b 60%, #000 100%);
+      background: radial-gradient(circle at 20% 0%, rgba(59,130,246,0.15), transparent 50%),
+        radial-gradient(circle at 80% 25%, rgba(248,113,113,0.18), transparent 45%),
+        linear-gradient(180deg, #020617 0%, #01030b 60%, #000 100%);
       display: flex;
       justify-content: center;
       padding: 2rem 1rem 3rem;
     }
-    body::after {
+    body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.05), transparent 60%);
-      opacity: 0.4;
+      background: radial-gradient(circle, rgba(255,255,255,0.04), transparent 70%);
       pointer-events: none;
+      opacity: 0.5;
       z-index: 0;
     }
     main {
-      width: min(1200px, 100%);
+      width: min(1180px, 100%);
       position: relative;
       z-index: 1;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
     }
-    header.hero {
+    .hero {
       border-radius: 1.5rem;
-      padding: 2rem;
-      background: linear-gradient(170deg, rgba(15,23,42,0.85), rgba(2,6,23,0.95));
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
       position: relative;
       overflow: hidden;
+      background: #050c19;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 2rem;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.85);
     }
-    header.hero::before {
+    .hero::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(249,115,22,0.15), transparent 70%);
+      background-image: url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1800&q=80');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.28;
+      mix-blend-mode: screen;
       pointer-events: none;
     }
-    .hero-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
     }
-    .hero-top h1 {
+    .hero h1 {
       margin: 0;
-      font-size: clamp(2.5rem, 4vw, 3.6rem);
+      font-size: clamp(2.5rem, 5vw, 3.7rem);
       letter-spacing: 0.35em;
       text-transform: uppercase;
     }
-    .hero-top .tag {
-      font-size: 0.8rem;
-      letter-spacing: 0.5em;
+    .hero p.tagline {
+      margin: 0.8rem 0 1.2rem;
+      font-size: 1rem;
+      letter-spacing: 0.4em;
       text-transform: uppercase;
-      color: #93c5fd;
+      color: #a5b4fc;
     }
-    .hero p.lead {
-      margin: 1rem 0 0;
-      font-size: 1.05rem;
-      line-height: 1.6;
-      color: rgba(255,255,255,0.85);
-      max-width: 760px;
+    .hero p.description {
+      margin: 0;
+      line-height: 1.7;
+      color: rgba(248,250,252,0.88);
     }
-    .split-grid {
+    .badge-row {
+      margin-top: 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+    .badge {
+      padding: 0.55rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.25);
+      letter-spacing: 0.3em;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.04);
+    }
+    .section-title {
+      margin: 0;
+      font-size: 1.2rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(248,250,252,0.8);
+    }
+    .grid-two {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
+      gap: 1.2rem;
     }
-    .card {
-      background: rgba(5,6,20,0.7);
+    .panel {
+      background: rgba(6,6,16,0.85);
       border-radius: 1.2rem;
-      border: 1px solid rgba(255,255,255,0.1);
       padding: 1.5rem;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.75);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
       position: relative;
       overflow: hidden;
     }
-    .card::after {
+    .panel::after {
       content: '';
       position: absolute;
       inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.03), transparent 70%);
+      background: radial-gradient(circle, rgba(255,255,255,0.03), transparent 65%);
       pointer-events: none;
-      opacity: 0.5;
+      opacity: 0.6;
     }
-    .card h2 {
+    .panel h2 {
       margin-top: 0;
-      margin-bottom: 0.5rem;
-      font-size: 1.4rem;
+      margin-bottom: 0.6rem;
       letter-spacing: 0.25em;
-      text-transform: uppercase;
+      font-size: 1.3rem;
     }
-    .card p {
+    .panel p {
       margin: 0;
-      color: rgba(248,250,252,0.8);
-      line-height: 1.5;
+      color: rgba(248,250,252,0.85);
+      line-height: 1.6;
     }
-    .spec-list {
+    .specs {
       list-style: none;
-      margin: 0;
+      margin: 1rem 0 0;
       padding: 0;
       display: grid;
-      gap: 0.6rem;
+      gap: 0.35rem;
     }
-    .spec-list li {
+    .specs li {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      letter-spacing: 0.1em;
       font-size: 0.95rem;
+      letter-spacing: 0.15em;
     }
     .spec-label {
-      color: rgba(255,255,255,0.65);
+      color: rgba(255,255,255,0.7);
     }
     .spec-value {
       font-weight: 600;
-      color: #fefefe;
     }
     .timeline {
       display: grid;
-      gap: 1rem;
+      gap: 0.9rem;
     }
-    .timeline-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.9rem 1rem;
+    .timeline-item {
+      background: rgba(255,255,255,0.02);
       border-radius: 1rem;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
+      padding: 0.9rem 1rem;
+      border: 1px solid rgba(255,255,255,0.07);
     }
-    .timeline-date {
-      font-size: 0.85rem;
-      letter-spacing: 0.4em;
+    .timeline-item span.date {
+      font-size: 0.75rem;
+      letter-spacing: 0.35em;
       text-transform: uppercase;
       color: #67e8f9;
     }
-    .timeline-text {
-      flex: 1;
-      margin-left: 1rem;
-      color: rgba(255,255,255,0.85);
+    .timeline-item p {
+      margin: 0.4rem 0 0;
+      line-height: 1.5;
     }
-    .cta-card {
-      background: linear-gradient(140deg, rgba(249,115,22,0.25), rgba(129,140,248,0.25));
-      border: 1px solid rgba(249,115,22,0.35);
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
     }
-    .cta-card button {
-      border: none;
+    .gallery figure {
+      margin: 0;
       border-radius: 1rem;
-      padding: 0.85rem 1.5rem;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.8);
+    }
+    .gallery img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery figcaption {
+      padding: 0.75rem 1rem;
+      background: rgba(2,6,23,0.8);
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .cta {
+      background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(59,130,246,0.35));
+      border-radius: 1.2rem;
+      padding: 1.75rem;
+      border: 1px solid rgba(249,115,22,0.5);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .cta button {
+      border: none;
+      border-radius: 999px;
+      padding: 0.9rem 1.5rem;
       font-size: 0.95rem;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.25em;
       font-weight: 600;
       cursor: pointer;
       background: #f97316;
       color: #01030b;
-      transition: transform 0.2s ease;
     }
-    .cta-card button:hover {
-      transform: translateY(-2px);
-    }
-    @media (max-width: 700px) {
-      header.hero {
+    @media (max-width: 640px) {
+      body {
+        padding: 1.5rem 1rem 2rem;
+      }
+      .hero {
         padding: 1.5rem;
       }
-      .split-grid {
-        grid-template-columns: 1fr;
+      .badge-row {
+        flex-direction: column;
       }
     }
   </style>
 </head>
 <body>
   <main>
-    <header class="hero">
-      <div class="hero-top">
-        <div>
-          <p class="tag">Acura Heritage</p>
-          <h1>NSX Studio</h1>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="tagline">Precision Crafted Performance</p>
+        <h1>Second-gen Acura NSX</h1>
+        <p class="description">
+          2016 年にデビューした第二世代 NSX は、V6 ツインターボ＋3 モーターという新しいパワートレインと
+          アルミ・カーボン複合シャーシで登場。Type S では 600 馬力を超える出力と SH-AWD® によるトラクションを備え、
+          アキュラの先端技術とクラフトマンシップを結集させたフルハイブリッドスーパーカーとして地位を確立した。
+        </p>
+        <div class="badge-row">
+          <span class="badge">2016-2022</span>
+          <span class="badge">Type S</span>
+          <span class="badge">Hyundai Motorsport Inspired</span>
         </div>
-        <p class="tag">Precision Performance</p>
       </div>
-      <p class="lead">
-        アキュラ NSX は 2 シーター・ミッドエンジンのレーシング精神を取り込み、
-        現代のクラフトマンシップで再解釈された存在です。このスタジオでは歴代の進化から、
-        2025 年末に完成した Tensei RC モデルまでのシーンを紹介します。
-      </p>
-    </header>
-
-    <section class="split-grid">
-      <article class="card">
-        <h2>Supercar DNA</h2>
-        <p>
-          初代 NSX は 1990 年代に Ferrari や Porsche を凌ぐ精密さと運転しやすさを示しました。
-          現行モデルも V6 ツインターボ＋3 基の電動モーターを組み合わせ、四輪駆動ハイブリッドで 602 馬力を発揮します。
-        </p>
-        <ul class="spec-list">
-          <li><span class="spec-label">パワートレイン</span><span class="spec-value">V6 + eモーター</span></li>
-          <li><span class="spec-label">最高出力</span><span class="spec-value">600PS 以上</span></li>
-          <li><span class="spec-label">0-100km/h</span><span class="spec-value">3.0 秒台</span></li>
-        </ul>
-      </article>
-
-      <article class="card">
-        <h2>Tensei RC</h2>
-        <p>
-          2025 年末完成の Tensei RC は 2022 NSX や 2024 モデルからの継承で、限定 25 台のリビルド。
-          アルミ＋カーボンシャーシを完全分解後に素材を吟味し、手作業でチタンフロントパネルや 3D プリント・インテリアを再生しました。
-        </p>
-        <ul class="spec-list">
-          <li><span class="spec-label">限定台数</span><span class="spec-value">25 台</span></li>
-          <li><span class="spec-label">マテリアル</span><span class="spec-value">チタン／カーボン</span></li>
-          <li><span class="spec-label">ハンドクラフト</span><span class="spec-value">完全分解・再成形</span></li>
-        </ul>
-      </article>
     </section>
 
-    <section class="card">
-      <h2>Timeline</h2>
+    <section>
+      <h2 class="section-title">Performance Snapshot</h2>
+      <div class="grid-two">
+        <article class="panel">
+          <h2>Heart of the NSX</h2>
+          <p>
+            3.5L V6 ツインターボエンジンをミッドシップに搭載し、リア左右＋フロントに電動モーターを配置。
+            合計 573hp を標準モデルが出力し、Type S では 600hp／492 lb-ft を達成。
+          </p>
+          <ul class="specs">
+            <li><span class="spec-label">ドライブトレイン</span><span class="spec-value">V6+3モーター SH-AWD</span></li>
+            <li><span class="spec-label">0-100 km/h</span><span class="spec-value">3.0 秒未満</span></li>
+            <li><span class="spec-label">最高速度</span><span class="spec-value">305 km/h 程度</span></li>
+            <li><span class="spec-label">配分</span><span class="spec-value">Aluminium/Carbon Core</span></li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h2>Type S Refinement</h2>
+          <p>
+            2022 年 Type S はアクティブリアウィング・カーボンフロントバンパー・セラミックブレーキを採用。
+            軽量化されたボディにより、サーキットでも俊敏なハンドリングを実現しつつ、室内ではアルカンターラをふんだんに用いたラグジュアリ感を保った。
+          </p>
+          <ul class="specs">
+            <li><span class="spec-label">限定数</span><span class="spec-value">350台</span></li>
+            <li><span class="spec-label">アクティブエアロ</span><span class="spec-value">前後フラップ＋ディフューザー</span></li>
+            <li><span class="spec-label">トラックモード</span><span class="spec-value">ハードウェア最適化</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Heritage & Legacy</h2>
       <div class="timeline">
-        <div class="timeline-row">
-          <span class="timeline-date">1990</span>
-          <p class="timeline-text">初代 NSX 発表。F1 技術を取り込んだ 3.0L V6 を搭載し、メタルボディを採用。</p>
+        <div class="timeline-item">
+          <span class="date">2012</span>
+          <p>「NSX コンセプト」が北米で発表され、第二世代の方向性を示す。ボディはアルミ＋カーボンを活用。</p>
         </div>
-        <div class="timeline-row">
-          <span class="timeline-date">2016</span>
-          <p class="timeline-text">2代目 NSX がハイブリッド V6＋3 モーター仕様で復活。ダイナミック・パフォーマンス・コントロールを導入。</p>
+        <div class="timeline-item">
+          <span class="date">2016</span>
+          <p>第二世代 NSX 正式デビュー。量産モデルとしては初の鋳造アルミとカーボンファイバーモノコックを採用。</p>
         </div>
-        <div class="timeline-row">
-          <span class="timeline-date">2025</span>
-          <p class="timeline-text">Tensei RC が限定再生され、現存 NSX の部品を再生産しつつ最先端クラフトを注入。</p>
+        <div class="timeline-item">
+          <span class="date">2022</span>
+          <p>Type S が限定復活。600hp を突破し、サーキット仕様のアクティブエアロと軽量化を実装。</p>
         </div>
-        <div class="timeline-row">
-          <span class="timeline-date">2028</span>
-          <p class="timeline-text">アキュラが次世代 NSX 型 EV を投入予定。軽量構造と高効率モーターで新たなサーキット体験を提示します。</p>
+        <div class="timeline-item">
+          <span class="date">2025</span>
+          <p>CADET Tensei 企画、第二世代をリビルドした Tensei RC を公開。レストア＋リマスタリングの模範となる。</p>
         </div>
       </div>
     </section>
 
-    <section class="split-grid">
-      <article class="card">
-        <h2>Craftsmanship</h2>
-        <p>
-          Tensei RC では「破壊して作り直す」アプローチが採られ、全パーツをジグに合わせて再精度合わせ。
-          3D プリントされたカーボン・アクセントや手磨きのアルミ削り出しが、むしろ量産品では味わえない細部を生み出しています。
-        </p>
-      </article>
-      <article class="card cta-card">
-        <h2>Next Horizon</h2>
-        <p>
-          次期 NSX 型は 2028 年に EV プラットフォームでデビュー予定。ミッドシップ・バッテリー配列とアクティブエアロで
-          軽量化と空力性能を両立させる計画です。
-        </p>
-        <button type="button">アキュラ公式ニュースをチェック</button>
-      </article>
+    <section>
+      <h2 class="section-title">Gallery</h2>
+      <div class="gallery">
+        <figure>
+          <img src="https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=900&q=80" alt="Acura NSX Type S front">
+          <figcaption>アグレッシブなフロントフェイスとアクティブエアロ</figcaption>
+        </figure>
+        <figure>
+          <img src="https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?auto=format&fit=crop&w=900&q=80" alt="NSX on track">
+          <figcaption>Type S がサーキットで見せる精密な挙動</figcaption>
+        </figure>
+        <figure>
+          <img src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?auto=format&fit=crop&w=900&q=80" alt="NSX interior">
+          <figcaption>アルカンターラとカーボンのキャビン</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="cta">
+      <h2 class="section-title">Explore Further</h2>
+      <p>
+        第二世代 NSX はアキュラの技術ロードマップの中心にあり、Type S で極まったバランスは次世代 EV に受け継がれる予定です。
+        公式ドキュメントやリマスターされた Tensei プロジェクトで最新情報を確認してください。
+      </p>
+      <button type="button">Acura公式サイトで詳細を見る</button>
     </section>
   </main>
 </body>
