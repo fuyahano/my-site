@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Celestial Dispatch</title>
+  <title>Block Atelier</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;500;600&display=swap');
     :root {
+      color: #f8fafc;
+      background-color: #020617;
       font-family: 'Space Grotesk', 'Noto Sans JP', system-ui, sans-serif;
-      color: #f3f4ff;
-      background-color: #01030b;
     }
     * {
       box-sizing: border-box;
@@ -17,569 +17,450 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at 15% -10%, rgba(59,130,246,0.25), transparent 45%),
-        radial-gradient(circle at 85% 5%, rgba(244,114,182,0.2), transparent 40%),
-        linear-gradient(180deg, #040617 0%, #01030b 60%, #000000 100%);
+      background: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.15), transparent 45%),
+        radial-gradient(circle at 90% 0%, rgba(236,72,153,0.12), transparent 40%),
+        linear-gradient(180deg, #030712 0%, #01030b 60%, #000000 100%);
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      padding: 3rem 1rem 4rem;
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.05), transparent 50%),
-        radial-gradient(circle at 0% 50%, rgba(59,130,246,0.06), transparent 45%);
-      pointer-events: none;
-      z-index: 0;
+      align-items: stretch;
+      padding: 2rem 1rem;
     }
     main {
-      width: min(1180px, 100%);
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 1.75rem;
+      width: min(1200px, 100%);
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr);
+      gap: 1.4rem;
+      align-items: stretch;
     }
-    .hero {
-      text-align: center;
-      padding: 1.5rem 1rem 2rem;
-      border-radius: 1.8rem;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: linear-gradient(180deg, rgba(15,23,42,0.9), rgba(2,6,23,0.95));
-      box-shadow: 0 25px 70px rgba(2,6,23,0.9);
+    .scene-shell {
       position: relative;
+      border-radius: 1.5rem;
+      background: linear-gradient(180deg, rgba(15,23,42,0.6), rgba(2,6,23,0.85));
+      border: 1px solid rgba(255,255,255,0.08);
       overflow: hidden;
+      box-shadow: 0 30px 60px rgba(2,6,23,0.9);
     }
-    .hero::after {
+    .scene-shell::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle, rgba(255,255,255,0.04), transparent 70%);
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05), transparent 55%);
       pointer-events: none;
+      opacity: 0.9;
     }
-    .hero .eyebrow {
-      letter-spacing: 0.4em;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      color: #93c5fd;
-      margin-bottom: 0.75rem;
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
-    .hero h1 {
-      font-size: clamp(2.4rem, 4vw, 3.6rem);
-      margin: 0.25rem 0;
-      letter-spacing: 0.2em;
-    }
-    .hero .lead {
-      margin: 0.8rem auto 0;
-      max-width: 640px;
-      font-size: 1.05rem;
-      color: rgba(255,255,255,0.85);
-      line-height: 1.5;
-    }
-    .hero-controls {
-      margin-top: 1.3rem;
+    .hud {
+      position: absolute;
+      inset: 1rem;
+      pointer-events: none;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1.1rem;
-      flex-wrap: wrap;
-      font-size: 0.95rem;
-      position: relative;
+      flex-direction: column;
+      gap: 0.65rem;
       z-index: 1;
     }
-    .hero-controls span {
-      color: rgba(255,255,255,0.9);
-    }
-    #refreshTime {
-      font-weight: 700;
-    }
-    #refreshNews {
-      border: none;
-      border-radius: 999px;
-      padding: 0.85rem 1.6rem;
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, #f97316, #facc15);
-      color: #08090b;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 12px 30px rgba(249,115,22,0.35);
-    }
-    #refreshNews.is-busy {
-      cursor: progress;
-      box-shadow: none;
-      transform: scale(0.98);
-    }
-    #refreshNews:focus-visible {
-      outline: 2px solid rgba(250,204,21,0.7);
-      outline-offset: 3px;
-    }
-    .hero-note {
-      margin-top: 0.65rem;
+    .hud p {
+      margin: 0;
       font-size: 0.85rem;
-      color: rgba(255,255,255,0.7);
-      position: relative;
-      z-index: 1;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
     }
-    .topics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-    .topic-card {
-      position: relative;
-      padding: 1.8rem;
-      border-radius: 1.35rem;
-      border: 1px solid rgba(255,255,255,0.15);
-      background: linear-gradient(160deg, rgba(255,255,255,0.02), rgba(2,6,23,0.9));
-      overflow: hidden;
-      min-height: 360px;
-      box-shadow: 0 15px 40px rgba(2,6,23,0.9);
-      isolation: isolate;
+    .controls-panel {
+      background: rgba(2,6,23,0.95);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 1.75rem;
       display: flex;
       flex-direction: column;
-      gap: 0.9rem;
+      gap: 1rem;
+      box-shadow: 0 25px 55px rgba(2,6,23,0.75);
     }
-    .topic-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle, rgba(255,255,255,0.04), transparent 60%);
-      opacity: 0.7;
-      pointer-events: none;
-    }
-    .topic-card__aura {
-      position: absolute;
-      inset: -10%;
-      background: var(--aura, radial-gradient(circle, rgba(255,255,255,0.1), transparent 65%));
-      filter: blur(45px);
-      opacity: 0.4;
-      pointer-events: none;
-    }
-    .topic-card__header {
-      display: flex;
-      align-items: center;
-      gap: 0.9rem;
-      position: relative;
-      z-index: 1;
-    }
-    .topic-card__icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.1);
-      display: grid;
-      place-items: center;
-      font-size: 1.5rem;
-      color: var(--accent, #f97316);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .topic-card__label {
+    .controls-panel h1 {
       margin: 0;
-      letter-spacing: 0.2em;
-      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      font-size: 1.4rem;
       text-transform: uppercase;
+    }
+    .controls-panel p {
+      margin: 0;
       color: rgba(255,255,255,0.7);
+      line-height: 1.6;
     }
-    .topic-card__descriptor {
-      margin: 0.15rem 0 0;
-      font-size: 1rem;
-      font-weight: 600;
-      color: rgba(255,255,255,0.9);
-    }
-    .topic-card__motif {
-      margin: 0;
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.65);
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      position: relative;
-      z-index: 1;
-    }
-    .topic-card__headline {
-      margin: 0;
-      font-size: clamp(1.4rem, 2vw, 1.75rem);
-      font-weight: 600;
-      line-height: 1.25;
-      color: #fff;
-      position: relative;
-      z-index: 1;
-    }
-    .topic-card__summary {
-      margin: 0;
-      font-size: 0.98rem;
-      color: rgba(255,255,255,0.78);
-      line-height: 1.5;
-      position: relative;
-      z-index: 1;
-    }
-    .topic-card__list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
+    .materials {
       display: flex;
       flex-direction: column;
       gap: 0.55rem;
-      position: relative;
-      z-index: 1;
     }
-    .topic-card__item {
-      background: rgba(255,255,255,0.03);
+    .materials button {
+      border: 1px solid rgba(255,255,255,0.2);
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
       border-radius: 0.9rem;
-      border: 1px solid rgba(255,255,255,0.08);
       padding: 0.75rem 0.9rem;
-      transition: border-color 0.2s ease, transform 0.2s ease;
-    }
-    .topic-card__item:hover {
-      border-color: rgba(255,255,255,0.4);
-      transform: translateY(-2px);
-    }
-    .topic-card__link {
-      text-decoration: none;
       color: inherit;
-      display: flex;
+      text-align: left;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+      display: inline-flex;
       justify-content: space-between;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      font-weight: 500;
     }
-    .topic-card__time {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.6);
-      white-space: nowrap;
+    .materials button.is-active {
+      border-color: rgba(20,184,166,0.8);
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, rgba(20,184,166,0.15), rgba(30,64,175,0.2));
     }
-    .topic-card.is-loading .topic-card__item {
-      opacity: 0.5;
-    }
-    .log-panel {
-      background: rgba(5,6,20,0.8);
-      border-radius: 1.5rem;
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 1.5rem;
-      box-shadow: 0 20px 50px rgba(2,6,23,0.8);
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-    }
-    .panel-label {
-      margin: 0;
-      font-size: 0.75rem;
-      letter-spacing: 0.35em;
-      color: #7dd3fc;
+    .materials button span {
+      letter-spacing: 0.2em;
+      font-size: 0.65rem;
       text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
     }
-    #refreshLog {
-      list-style: none;
+    .materials button small {
+      color: rgba(255,255,255,0.65);
+      font-size: 0.8rem;
+      display: block;
+      margin-top: 0.05rem;
+    }
+    .material-pill {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      margin-left: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .actions button {
+      flex: 1;
+      min-width: 140px;
+      border: none;
+      border-radius: 0.9rem;
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #38bdf8, #6366f1);
+      color: #020617;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      box-shadow: 0 12px 30px rgba(56,189,248,0.3);
+    }
+    .actions button.secondary {
+      background: linear-gradient(135deg, rgba(249,115,22,0.85), rgba(251,191,36,0.8));
+      color: #0b0d12;
+    }
+    .actions button:active {
+      transform: translateY(1px);
+    }
+    .action-log {
       margin: 0;
       padding: 0;
+      list-style: none;
       display: flex;
       flex-direction: column;
       gap: 0.35rem;
-      max-height: 160px;
-      overflow: hidden;
+      max-height: 220px;
+      overflow-y: auto;
     }
-    #refreshLog li {
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.85);
-      padding: 0.6rem 0.75rem;
+    .action-log li {
+      font-size: 0.9rem;
+      color: rgba(248,250,252,0.85);
+      padding: 0.6rem 0.8rem;
       border-radius: 0.9rem;
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.05);
     }
-    .log-note {
-      margin: 0;
-      font-size: 0.85rem;
+    .hint-chip {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
       color: rgba(255,255,255,0.6);
     }
-    .floating-orb {
-      position: absolute;
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
-      box-shadow: 0 0 30px rgba(255,255,255,0.25);
-      opacity: 0.6;
-      animation: drift 10s linear infinite;
-      pointer-events: none;
-    }
-    .floating-orb:nth-of-type(1) {
-      top: -5%;
-      right: 8%;
-      animation-delay: -2s;
-    }
-    .floating-orb:nth-of-type(2) {
-      bottom: -10%;
-      left: 6%;
-      animation-delay: -4s;
-    }
-    @keyframes drift {
-      0% { transform: translate3d(0,0,0) scale(1); }
-      50% { transform: translate3d(15px,-25px,0) scale(1.1); }
-      100% { transform: translate3d(0,0,0) scale(1); }
-    }
-    @media (max-width: 768px) {
-      body {
-        padding-top: 2rem;
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
       }
-      .hero {
-        padding: 1.25rem 1rem 1.75rem;
-      }
-      .topic-card {
-        min-height: auto;
-      }
-      #refreshNews {
-        width: 100%;
-        justify-content: center;
+      .scene-shell {
+        min-height: 360px;
       }
     }
   </style>
 </head>
 <body>
-  <main class="lux-shell">
-    <header class="hero">
-      <p class="eyebrow">auto dispatch</p>
-      <h1>Celestial Dispatch</h1>
-      <p class="lead">最新ニュースをトピックごとに収集し、豪華な演出と合わせて配信します。</p>
-      <div class="hero-controls">
-        <span>最終更新: <strong id="refreshTime">取得中…</strong></span>
-        <button id="refreshNews" type="button">今すぐ豪華リフレッシュ</button>
+  <main>
+    <section class="scene-shell">
+      <canvas id="world"></canvas>
+      <div class="hud">
+        <p class="hint-chip">マウス左クリック：ブロック配置 · 右クリック：ブロック破壊</p>
+        <p class="hint-chip">Q/E でカメラズーム・OrbitControls で視点移動</p>
       </div>
-      <p class="hero-note">5分ごとに自動更新。テーマごとに背景や演出を切り替えて豪華に。</p>
-    </header>
-    <div class="floating-orb"></div>
-    <div class="floating-orb"></div>
-    <section class="topics-grid" id="topicsGrid" aria-live="polite"></section>
-    <section class="log-panel">
-      <p class="panel-label">更新履歴</p>
-      <ul id="refreshLog">
-        <li>最初のロード中…</li>
-      </ul>
-      <p class="log-note">トピックごとにモチーフを変え、豪華な演出を施しています。</p>
     </section>
+    <aside class="controls-panel">
+      <h1>Block Atelier</h1>
+      <p>ブロック集めて、思いのままに建築を重ねていこう。素材を選んでクリックで壁や塔を構築し、右クリックで不要なブロックを壊せるよ。</p>
+      <div class="materials" id="materialsList"></div>
+      <div class="actions">
+        <button id="resetWorld" type="button">クラフトリセット</button>
+        <button id="toggleGrid" type="button" class="secondary">グリッド切替</button>
+      </div>
+      <div>
+        <p class="hint-chip">操作ログ</p>
+        <ul class="action-log" id="actionLog"></ul>
+      </div>
+    </aside>
   </main>
-  <script>
-    const topics = [
-      {
-        id: 'world',
-        label: 'WORLD',
-        descriptor: '外交・地政学',
-        motif: 'Aurora Corridor',
-        feed: 'https://news.google.com/rss/headlines/section/topic/WORLD?hl=ja&gl=JP&ceid=JP:ja',
-        icon: '🌍',
-        accent: '#f97316',
-        aura: 'linear-gradient(120deg, rgba(249,115,22,0.35), rgba(234,88,12,0.15))',
-      },
-      {
-        id: 'business',
-        label: 'ECONOMY',
-        descriptor: '株式・市場・企業',
-        motif: 'Golden Ledger',
-        feed: 'https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ja&gl=JP&ceid=JP:ja',
-        icon: '💹',
-        accent: '#facc15',
-        aura: 'linear-gradient(120deg, rgba(250,204,21,0.35), rgba(245,158,11,0.2))',
-      },
-      {
-        id: 'technology',
-        label: 'TECH',
-        descriptor: 'AI・宇宙・インフラ',
-        motif: 'Luminous Circuit',
-        feed: 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=ja&gl=JP&ceid=JP:ja',
-        icon: '⚡',
-        accent: '#22d3ee',
-        aura: 'linear-gradient(140deg, rgba(34,211,238,0.35), rgba(14,165,233,0.25))',
-      },
-      {
-        id: 'culture',
-        label: 'CULTURE',
-        descriptor: 'エンタメ・カルチャー',
-        motif: 'Velvet Stage',
-        feed: 'https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?hl=ja&gl=JP&ceid=JP:ja',
-        icon: '🎬',
-        accent: '#a855f7',
-        aura: 'linear-gradient(140deg, rgba(168,85,247,0.3), rgba(236,72,153,0.2))',
-      },
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js';
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/controls/OrbitControls.js';
+
+    const canvas = document.getElementById('world');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x030712);
+    scene.fog = new THREE.Fog(0x030712, 20, 60);
+
+    const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 120);
+    camera.position.set(12, 10, 12);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 1.5, 0);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.1;
+
+    const gridHelper = new THREE.GridHelper(32, 32, 0x1d4ed8, 0x374151);
+    gridHelper.position.y = -0.5;
+    scene.add(gridHelper);
+
+    const lightTop = new THREE.DirectionalLight(0xffffff, 1);
+    lightTop.position.set(5, 10, 3);
+    scene.add(lightTop);
+
+    const fillLight = new THREE.AmbientLight(0x8da5c2, 0.7);
+    scene.add(fillLight);
+
+    const materialData = [
+      { type: 'grass', label: '草ブロック', desc: '伸びやかな緑色', color: '#4ade80' },
+      { type: 'stone', label: '石レンガ', desc: '重厚で安定感ある', color: '#cbd5f5' },
+      { type: 'wood', label: 'オーク材', desc: '建築アクセント', color: '#fbbf24' },
+      { type: 'glass', label: 'クリスタル', desc: '光を透かす窓', color: '#38bdf8' },
     ];
-    const proxy = 'https://api.allorigins.win/raw?url=';
-    const topicsGrid = document.getElementById('topicsGrid');
-    const refreshTimeEl = document.getElementById('refreshTime');
-    const refreshBtn = document.getElementById('refreshNews');
-    const logList = document.getElementById('refreshLog');
-    const topicEntries = {};
 
-    function stripHtml(value) {
-      const tmp = document.createElement('div');
-      tmp.innerHTML = value || '';
-      return tmp.textContent?.trim() ?? '';
-    }
+    const blockMaterials = new Map(materialData.map((item) => [item.type, new THREE.MeshStandardMaterial({ color: item.color, roughness: 0.55, metalness: 0.1 })]));
+    const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const blocks = new Map();
+    const blockMeshes = [];
 
-    function formatDate(value) {
-      if (!value) {
-        return '';
-      }
-      const parsed = new Date(value);
-      if (Number.isNaN(parsed)) {
-        return '';
-      }
-      return new Intl.DateTimeFormat('ja-JP', {
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      }).format(parsed);
-    }
+    const actionLog = document.getElementById('actionLog');
+    const materialsList = document.getElementById('materialsList');
+    const resetButton = document.getElementById('resetWorld');
+    const toggleGridButton = document.getElementById('toggleGrid');
 
-    function createListItem(article, index) {
+    let selectedType = materialData[0].type;
+    let gridVisible = true;
+
+    function addLog(message) {
       const item = document.createElement('li');
-      item.className = 'topic-card__item';
-      const link = document.createElement('a');
-      link.className = 'topic-card__link';
-      if (article.link) {
-        link.href = article.link;
-        link.target = '_blank';
-        link.rel = 'noreferrer noopener';
-      } else {
-        link.setAttribute('aria-disabled', 'true');
+      item.textContent = `${new Date().toLocaleTimeString('ja-JP', { hour12: false })} — ${message}`;
+      actionLog.prepend(item);
+      while (actionLog.children.length > 6) {
+        actionLog.removeChild(actionLog.lastChild);
       }
-      const titleSpan = document.createElement('span');
-      titleSpan.textContent = `${index + 1}. ${article.title}`;
-      link.appendChild(titleSpan);
-      const timeValue = formatDate(article.pubDate);
-      if (timeValue) {
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'topic-card__time';
-        timeSpan.textContent = timeValue;
-        link.appendChild(timeSpan);
-      }
-      item.appendChild(link);
-      return item;
     }
 
-    topics.forEach((topic) => {
-      const card = document.createElement('article');
-      card.className = 'topic-card';
-      card.dataset.topic = topic.id;
-      card.style.setProperty('--aura', topic.aura);
-      card.style.setProperty('--accent', topic.accent);
-      card.innerHTML = `
-        <div class="topic-card__aura"></div>
-        <div class="topic-card__header">
-          <span class="topic-card__icon">${topic.icon}</span>
-          <div>
-            <p class="topic-card__label">${topic.label}</p>
-            <p class="topic-card__descriptor">${topic.descriptor}</p>
-          </div>
-        </div>
-        <p class="topic-card__motif">${topic.motif}</p>
-        <h2 class="topic-card__headline">読み込み中…</h2>
-        <p class="topic-card__summary">最新ニュースを読み込んでいます。</p>
-        <ul class="topic-card__list">
-          <li class="topic-card__item">
-            <span>舞台を整えています。しばらくお待ちください。</span>
-          </li>
-        </ul>
-      `;
-      topicsGrid.appendChild(card);
-      topicEntries[topic.id] = {
-        card,
-        headline: card.querySelector('.topic-card__headline'),
-        summary: card.querySelector('.topic-card__summary'),
-        list: card.querySelector('.topic-card__list'),
-      };
+    function materialButtonFor(item) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.type = item.type;
+      button.innerHTML = `<strong>${item.label}</strong><span>${item.desc}</span>`;
+      const pill = document.createElement('span');
+      pill.className = 'material-pill';
+      pill.style.background = item.color;
+      button.appendChild(pill);
+      button.addEventListener('click', () => {
+        selectedType = item.type;
+        updateMaterialButtons();
+        addLog(`${item.label} を選択`);
+      });
+      return button;
+    }
+
+    function updateMaterialButtons() {
+      materialsList.querySelectorAll('button').forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.type === selectedType);
+      });
+    }
+
+    materialData.forEach((item) => {
+      materialsList.appendChild(materialButtonFor(item));
+    });
+    updateMaterialButtons();
+
+    function keyForVector(position) {
+      return `${position.x}|${position.y}|${position.z}`;
+    }
+
+    function placeBlock(position, type) {
+      const key = keyForVector(position);
+      if (blocks.has(key)) {
+        return null;
+      }
+      const mesh = new THREE.Mesh(blockGeometry, blockMaterials.get(type));
+      mesh.position.copy(position);
+      mesh.userData = { type };
+      scene.add(mesh);
+      blocks.set(key, mesh);
+      blockMeshes.push(mesh);
+      return mesh;
+    }
+
+    function removeBlock(mesh) {
+      const key = keyForVector(mesh.position);
+      scene.remove(mesh);
+      blocks.delete(key);
+      const index = blockMeshes.indexOf(mesh);
+      if (index !== -1) {
+        blockMeshes.splice(index, 1);
+      }
+    }
+
+    function clearBlocks() {
+      blockMeshes.slice().forEach((mesh) => removeBlock(mesh));
+    }
+
+    function resetWorld() {
+      clearBlocks();
+      addBasePlane();
+      addLog('地面をリセットしました');
+    }
+
+    function addBasePlane() {
+      for (let x = -8; x <= 8; x += 1) {
+        for (let z = -8; z <= 8; z += 1) {
+          placeBlock(new THREE.Vector3(x, 0, z), 'grass');
+        }
+      }
+    }
+
+    addBasePlane();
+
+    let highlightMesh = null;
+    function ensureHighlight() {
+      if (highlightMesh) {
+        return highlightMesh;
+      }
+      highlightMesh = new THREE.Mesh(
+        blockGeometry,
+        new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.7 })
+      );
+      highlightMesh.visible = false;
+      scene.add(highlightMesh);
+      return highlightMesh;
+    }
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    function updatePointer(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    function alignToGrid(vec) {
+      return new THREE.Vector3(Math.round(vec.x), Math.round(vec.y), Math.round(vec.z));
+    }
+
+    function handleIntersect(intersect) {
+      const normalMatrix = new THREE.Matrix3().getNormalMatrix(intersect.object.matrixWorld);
+      const worldNormal = intersect.face.normal.clone().applyMatrix3(normalMatrix).normalize();
+      const position = alignToGrid(intersect.object.position.clone().add(worldNormal));
+      return position;
+    }
+
+    function handlePointer(event) {
+      if (blockMeshes.length === 0) {
+        return;
+      }
+      updatePointer(event);
+      raycaster.setFromCamera(pointer, camera);
+      const intersects = raycaster.intersectObjects(blockMeshes, false);
+      const helper = ensureHighlight();
+      if (intersects.length > 0) {
+        helper.visible = true;
+        helper.position.copy(intersects[0].object.position);
+      } else {
+        helper.visible = false;
+      }
+    }
+
+    function onPointerDown(event) {
+      if (event.button === 1) {
+        return;
+      }
+      event.preventDefault();
+      updatePointer(event);
+      raycaster.setFromCamera(pointer, camera);
+      const intersects = raycaster.intersectObjects(blockMeshes, false);
+      if (intersects.length === 0) {
+        return;
+      }
+      const intersect = intersects[0];
+      if (event.button === 2) {
+        if (intersect.object.userData?.type) {
+          removeBlock(intersect.object);
+          addLog('ブロックを破壊しました');
+        }
+        return;
+      }
+      const position = handleIntersect(intersect);
+      if (!blocks.has(keyForVector(position))) {
+        placeBlock(position, selectedType);
+        addLog('ブロックを配置しました');
+      }
+    }
+
+    renderer.domElement.addEventListener('pointermove', handlePointer);
+    renderer.domElement.addEventListener('pointerdown', onPointerDown);
+    renderer.domElement.addEventListener('contextmenu', (event) => event.preventDefault());
+
+    window.addEventListener('resize', () => {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height, false);
     });
 
-    async function fetchFeed(url) {
-      const response = await fetch(`${proxy}${encodeURIComponent(url)}`);
-      if (!response.ok) {
-        throw new Error('外部ニュースのフェッチに失敗しました');
-      }
-      const text = await response.text();
-      const doc = new DOMParser().parseFromString(text, 'text/xml');
-      if (doc.querySelector('parsererror')) {
-        throw new Error('フィードを解析できませんでした');
-      }
-      const items = Array.from(doc.querySelectorAll('item'))
-        .slice(0, 4)
-        .map((item) => ({
-          title: item.querySelector('title')?.textContent?.trim() ?? '無題',
-          link: item.querySelector('link')?.textContent?.trim(),
-          summary: stripHtml(item.querySelector('description')?.textContent ?? ''),
-          pubDate: item.querySelector('pubDate')?.textContent?.trim(),
-        }));
-      return items;
+    resetButton.addEventListener('click', () => {
+      resetWorld();
+    });
+
+    toggleGridButton.addEventListener('click', () => {
+      gridVisible = !gridVisible;
+      gridHelper.visible = gridVisible;
+      addLog(gridVisible ? 'グリッドを表示' : 'グリッドを非表示');
+    });
+
+    function animate() {
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
     }
 
-    async function loadTopic(topic) {
-      const entry = topicEntries[topic.id];
-      entry.card.classList.add('is-loading');
-      try {
-        const items = await fetchFeed(topic.feed);
-        if (items.length === 0) {
-          throw new Error('記事が見つかりませんでした');
-        }
-        const hero = items[0];
-        entry.headline.textContent = hero.title;
-        entry.summary.textContent = hero.summary || hero.title;
-        entry.list.innerHTML = '';
-        items.slice(0, 3).forEach((article, index) => {
-          entry.list.appendChild(createListItem(article, index));
-        });
-        return `${topic.label}：${items.length}件取得`;
-      } catch (error) {
-        entry.headline.textContent = '読み込み中断';
-        entry.summary.textContent = error.message ?? 'データ取得に失敗しました。';
-        entry.list.innerHTML = '';
-        const fallback = document.createElement('li');
-        fallback.className = 'topic-card__item';
-        fallback.textContent = '再度更新すると最新情報が補完されます。';
-        entry.list.appendChild(fallback);
-        return `${topic.label}：${error.message ?? '不明なエラー'}`;
-      } finally {
-        entry.card.classList.remove('is-loading');
-      }
-    }
-
-    function appendLog(message) {
-      if (!logList) {
-        return;
-      }
-      const item = document.createElement('li');
-      item.textContent = message;
-      logList.prepend(item);
-      while (logList.children.length > 5) {
-        logList.removeChild(logList.lastChild);
-      }
-    }
-
-    let busy = false;
-    async function refreshAll(trigger) {
-      if (busy) {
-        return;
-      }
-      busy = true;
-      refreshBtn.disabled = true;
-      refreshBtn.classList.add('is-busy');
-      refreshBtn.textContent = '演出を整えています…';
-      const statuses = await Promise.all(topics.map((topic) => loadTopic(topic)));
-      const now = new Date();
-      refreshTimeEl.textContent = now.toLocaleString('ja-JP', { hour12: false });
-      appendLog(`${trigger}更新: ${statuses.join(' · ')}`);
-      refreshBtn.textContent = '今すぐ豪華リフレッシュ';
-      refreshBtn.disabled = false;
-      refreshBtn.classList.remove('is-busy');
-      busy = false;
-    }
-
-    refreshBtn.addEventListener('click', () => refreshAll('手動'));
-    refreshAll('初期');
-    setInterval(() => refreshAll('自動'), 1000 * 60 * 5);
+    animate();
   </script>
 </body>
 </html>
