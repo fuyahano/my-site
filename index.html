@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Block Atelier</title>
+  <title>Acura NSX Studio</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
     :root {
-      color: #f8fafc;
-      background-color: #020617;
+      color: #f8fbff;
+      background-color: #01030b;
       font-family: 'Space Grotesk', 'Noto Sans JP', system-ui, sans-serif;
     }
     * {
@@ -17,450 +17,264 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.15), transparent 45%),
-        radial-gradient(circle at 90% 0%, rgba(236,72,153,0.12), transparent 40%),
-        linear-gradient(180deg, #030712 0%, #01030b 60%, #000000 100%);
+      background: radial-gradient(circle at 20% 10%, rgba(56,189,248,0.2), transparent 50%),
+        radial-gradient(circle at 70% 0%, rgba(236,72,153,0.25), transparent 60%),
+        linear-gradient(180deg, #030712 0%, #01030b 60%, #000 100%);
       display: flex;
       justify-content: center;
-      align-items: stretch;
-      padding: 2rem 1rem;
+      padding: 2rem 1rem 3rem;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.05), transparent 60%);
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 0;
     }
     main {
       width: min(1200px, 100%);
-      display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr);
-      gap: 1.4rem;
-      align-items: stretch;
-    }
-    .scene-shell {
       position: relative;
-      border-radius: 1.5rem;
-      background: linear-gradient(180deg, rgba(15,23,42,0.6), rgba(2,6,23,0.85));
-      border: 1px solid rgba(255,255,255,0.08);
-      overflow: hidden;
-      box-shadow: 0 30px 60px rgba(2,6,23,0.9);
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
     }
-    .scene-shell::after {
+    header.hero {
+      border-radius: 1.5rem;
+      padding: 2rem;
+      background: linear-gradient(170deg, rgba(15,23,42,0.85), rgba(2,6,23,0.95));
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+      position: relative;
+      overflow: hidden;
+    }
+    header.hero::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05), transparent 55%);
+      background: linear-gradient(135deg, rgba(249,115,22,0.15), transparent 70%);
       pointer-events: none;
-      opacity: 0.9;
     }
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .hud {
-      position: absolute;
-      inset: 1rem;
-      pointer-events: none;
+    .hero-top {
       display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-      z-index: 1;
-    }
-    .hud p {
-      margin: 0;
-      font-size: 0.85rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.75);
-    }
-    .controls-panel {
-      background: rgba(2,6,23,0.95);
-      border-radius: 1.5rem;
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 1.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      box-shadow: 0 25px 55px rgba(2,6,23,0.75);
-    }
-    .controls-panel h1 {
-      margin: 0;
-      letter-spacing: 0.3em;
-      font-size: 1.4rem;
-      text-transform: uppercase;
-    }
-    .controls-panel p {
-      margin: 0;
-      color: rgba(255,255,255,0.7);
-      line-height: 1.6;
-    }
-    .materials {
-      display: flex;
-      flex-direction: column;
-      gap: 0.55rem;
-    }
-    .materials button {
-      border: 1px solid rgba(255,255,255,0.2);
-      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-      border-radius: 0.9rem;
-      padding: 0.75rem 0.9rem;
-      color: inherit;
-      text-align: left;
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.2s ease, transform 0.2s ease;
-      display: inline-flex;
       justify-content: space-between;
       align-items: center;
+      gap: 1rem;
     }
-    .materials button.is-active {
-      border-color: rgba(20,184,166,0.8);
-      transform: translateY(-1px);
-      background: linear-gradient(135deg, rgba(20,184,166,0.15), rgba(30,64,175,0.2));
-    }
-    .materials button span {
-      letter-spacing: 0.2em;
-      font-size: 0.65rem;
+    .hero-top h1 {
+      margin: 0;
+      font-size: clamp(2.5rem, 4vw, 3.6rem);
+      letter-spacing: 0.35em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.65);
     }
-    .materials button small {
-      color: rgba(255,255,255,0.65);
+    .hero-top .tag {
       font-size: 0.8rem;
-      display: block;
-      margin-top: 0.05rem;
-    }
-    .material-pill {
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-      margin-left: 0.75rem;
-      border: 1px solid rgba(255,255,255,0.3);
-    }
-    .actions {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .actions button {
-      flex: 1;
-      min-width: 140px;
-      border: none;
-      border-radius: 0.9rem;
-      padding: 0.85rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.5em;
       text-transform: uppercase;
-      background: linear-gradient(135deg, #38bdf8, #6366f1);
-      color: #020617;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-      box-shadow: 0 12px 30px rgba(56,189,248,0.3);
+      color: #93c5fd;
     }
-    .actions button.secondary {
-      background: linear-gradient(135deg, rgba(249,115,22,0.85), rgba(251,191,36,0.8));
-      color: #0b0d12;
+    .hero p.lead {
+      margin: 1rem 0 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.85);
+      max-width: 760px;
     }
-    .actions button:active {
-      transform: translateY(1px);
+    .split-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
     }
-    .action-log {
+    .card {
+      background: rgba(5,6,20,0.7);
+      border-radius: 1.2rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 1.5rem;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.75);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.03), transparent 70%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-size: 1.4rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+    .card p {
+      margin: 0;
+      color: rgba(248,250,252,0.8);
+      line-height: 1.5;
+    }
+    .spec-list {
+      list-style: none;
       margin: 0;
       padding: 0;
-      list-style: none;
+      display: grid;
+      gap: 0.6rem;
+    }
+    .spec-list li {
       display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      max-height: 220px;
-      overflow-y: auto;
+      justify-content: space-between;
+      align-items: baseline;
+      letter-spacing: 0.1em;
+      font-size: 0.95rem;
     }
-    .action-log li {
-      font-size: 0.9rem;
-      color: rgba(248,250,252,0.85);
-      padding: 0.6rem 0.8rem;
-      border-radius: 0.9rem;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.05);
+    .spec-label {
+      color: rgba(255,255,255,0.65);
     }
-    .hint-chip {
-      font-size: 0.75rem;
-      letter-spacing: 0.2em;
+    .spec-value {
+      font-weight: 600;
+      color: #fefefe;
+    }
+    .timeline {
+      display: grid;
+      gap: 1rem;
+    }
+    .timeline-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 1rem;
+      border-radius: 1rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .timeline-date {
+      font-size: 0.85rem;
+      letter-spacing: 0.4em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.6);
+      color: #67e8f9;
     }
-    @media (max-width: 960px) {
-      main {
-        grid-template-columns: 1fr;
+    .timeline-text {
+      flex: 1;
+      margin-left: 1rem;
+      color: rgba(255,255,255,0.85);
+    }
+    .cta-card {
+      background: linear-gradient(140deg, rgba(249,115,22,0.25), rgba(129,140,248,0.25));
+      border: 1px solid rgba(249,115,22,0.35);
+    }
+    .cta-card button {
+      border: none;
+      border-radius: 1rem;
+      padding: 0.85rem 1.5rem;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-weight: 600;
+      cursor: pointer;
+      background: #f97316;
+      color: #01030b;
+      transition: transform 0.2s ease;
+    }
+    .cta-card button:hover {
+      transform: translateY(-2px);
+    }
+    @media (max-width: 700px) {
+      header.hero {
+        padding: 1.5rem;
       }
-      .scene-shell {
-        min-height: 360px;
+      .split-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
   <main>
-    <section class="scene-shell">
-      <canvas id="world"></canvas>
-      <div class="hud">
-        <p class="hint-chip">マウス左クリック：ブロック配置 · 右クリック：ブロック破壊</p>
-        <p class="hint-chip">Q/E でカメラズーム・OrbitControls で視点移動</p>
+    <header class="hero">
+      <div class="hero-top">
+        <div>
+          <p class="tag">Acura Heritage</p>
+          <h1>NSX Studio</h1>
+        </div>
+        <p class="tag">Precision Performance</p>
+      </div>
+      <p class="lead">
+        アキュラ NSX は 2 シーター・ミッドエンジンのレーシング精神を取り込み、
+        現代のクラフトマンシップで再解釈された存在です。このスタジオでは歴代の進化から、
+        2025 年末に完成した Tensei RC モデルまでのシーンを紹介します。
+      </p>
+    </header>
+
+    <section class="split-grid">
+      <article class="card">
+        <h2>Supercar DNA</h2>
+        <p>
+          初代 NSX は 1990 年代に Ferrari や Porsche を凌ぐ精密さと運転しやすさを示しました。
+          現行モデルも V6 ツインターボ＋3 基の電動モーターを組み合わせ、四輪駆動ハイブリッドで 602 馬力を発揮します。
+        </p>
+        <ul class="spec-list">
+          <li><span class="spec-label">パワートレイン</span><span class="spec-value">V6 + eモーター</span></li>
+          <li><span class="spec-label">最高出力</span><span class="spec-value">600PS 以上</span></li>
+          <li><span class="spec-label">0-100km/h</span><span class="spec-value">3.0 秒台</span></li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Tensei RC</h2>
+        <p>
+          2025 年末完成の Tensei RC は 2022 NSX や 2024 モデルからの継承で、限定 25 台のリビルド。
+          アルミ＋カーボンシャーシを完全分解後に素材を吟味し、手作業でチタンフロントパネルや 3D プリント・インテリアを再生しました。
+        </p>
+        <ul class="spec-list">
+          <li><span class="spec-label">限定台数</span><span class="spec-value">25 台</span></li>
+          <li><span class="spec-label">マテリアル</span><span class="spec-value">チタン／カーボン</span></li>
+          <li><span class="spec-label">ハンドクラフト</span><span class="spec-value">完全分解・再成形</span></li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>Timeline</h2>
+      <div class="timeline">
+        <div class="timeline-row">
+          <span class="timeline-date">1990</span>
+          <p class="timeline-text">初代 NSX 発表。F1 技術を取り込んだ 3.0L V6 を搭載し、メタルボディを採用。</p>
+        </div>
+        <div class="timeline-row">
+          <span class="timeline-date">2016</span>
+          <p class="timeline-text">2代目 NSX がハイブリッド V6＋3 モーター仕様で復活。ダイナミック・パフォーマンス・コントロールを導入。</p>
+        </div>
+        <div class="timeline-row">
+          <span class="timeline-date">2025</span>
+          <p class="timeline-text">Tensei RC が限定再生され、現存 NSX の部品を再生産しつつ最先端クラフトを注入。</p>
+        </div>
+        <div class="timeline-row">
+          <span class="timeline-date">2028</span>
+          <p class="timeline-text">アキュラが次世代 NSX 型 EV を投入予定。軽量構造と高効率モーターで新たなサーキット体験を提示します。</p>
+        </div>
       </div>
     </section>
-    <aside class="controls-panel">
-      <h1>Block Atelier</h1>
-      <p>ブロック集めて、思いのままに建築を重ねていこう。素材を選んでクリックで壁や塔を構築し、右クリックで不要なブロックを壊せるよ。</p>
-      <div class="materials" id="materialsList"></div>
-      <div class="actions">
-        <button id="resetWorld" type="button">クラフトリセット</button>
-        <button id="toggleGrid" type="button" class="secondary">グリッド切替</button>
-      </div>
-      <div>
-        <p class="hint-chip">操作ログ</p>
-        <ul class="action-log" id="actionLog"></ul>
-      </div>
-    </aside>
+
+    <section class="split-grid">
+      <article class="card">
+        <h2>Craftsmanship</h2>
+        <p>
+          Tensei RC では「破壊して作り直す」アプローチが採られ、全パーツをジグに合わせて再精度合わせ。
+          3D プリントされたカーボン・アクセントや手磨きのアルミ削り出しが、むしろ量産品では味わえない細部を生み出しています。
+        </p>
+      </article>
+      <article class="card cta-card">
+        <h2>Next Horizon</h2>
+        <p>
+          次期 NSX 型は 2028 年に EV プラットフォームでデビュー予定。ミッドシップ・バッテリー配列とアクティブエアロで
+          軽量化と空力性能を両立させる計画です。
+        </p>
+        <button type="button">アキュラ公式ニュースをチェック</button>
+      </article>
+    </section>
   </main>
-  <script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js';
-    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/controls/OrbitControls.js';
-
-    const canvas = document.getElementById('world');
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x030712);
-    scene.fog = new THREE.Fog(0x030712, 20, 60);
-
-    const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 120);
-    camera.position.set(12, 10, 12);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 1.5, 0);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.1;
-
-    const gridHelper = new THREE.GridHelper(32, 32, 0x1d4ed8, 0x374151);
-    gridHelper.position.y = -0.5;
-    scene.add(gridHelper);
-
-    const lightTop = new THREE.DirectionalLight(0xffffff, 1);
-    lightTop.position.set(5, 10, 3);
-    scene.add(lightTop);
-
-    const fillLight = new THREE.AmbientLight(0x8da5c2, 0.7);
-    scene.add(fillLight);
-
-    const materialData = [
-      { type: 'grass', label: '草ブロック', desc: '伸びやかな緑色', color: '#4ade80' },
-      { type: 'stone', label: '石レンガ', desc: '重厚で安定感ある', color: '#cbd5f5' },
-      { type: 'wood', label: 'オーク材', desc: '建築アクセント', color: '#fbbf24' },
-      { type: 'glass', label: 'クリスタル', desc: '光を透かす窓', color: '#38bdf8' },
-    ];
-
-    const blockMaterials = new Map(materialData.map((item) => [item.type, new THREE.MeshStandardMaterial({ color: item.color, roughness: 0.55, metalness: 0.1 })]));
-    const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const blocks = new Map();
-    const blockMeshes = [];
-
-    const actionLog = document.getElementById('actionLog');
-    const materialsList = document.getElementById('materialsList');
-    const resetButton = document.getElementById('resetWorld');
-    const toggleGridButton = document.getElementById('toggleGrid');
-
-    let selectedType = materialData[0].type;
-    let gridVisible = true;
-
-    function addLog(message) {
-      const item = document.createElement('li');
-      item.textContent = `${new Date().toLocaleTimeString('ja-JP', { hour12: false })} — ${message}`;
-      actionLog.prepend(item);
-      while (actionLog.children.length > 6) {
-        actionLog.removeChild(actionLog.lastChild);
-      }
-    }
-
-    function materialButtonFor(item) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.dataset.type = item.type;
-      button.innerHTML = `<strong>${item.label}</strong><span>${item.desc}</span>`;
-      const pill = document.createElement('span');
-      pill.className = 'material-pill';
-      pill.style.background = item.color;
-      button.appendChild(pill);
-      button.addEventListener('click', () => {
-        selectedType = item.type;
-        updateMaterialButtons();
-        addLog(`${item.label} を選択`);
-      });
-      return button;
-    }
-
-    function updateMaterialButtons() {
-      materialsList.querySelectorAll('button').forEach((button) => {
-        button.classList.toggle('is-active', button.dataset.type === selectedType);
-      });
-    }
-
-    materialData.forEach((item) => {
-      materialsList.appendChild(materialButtonFor(item));
-    });
-    updateMaterialButtons();
-
-    function keyForVector(position) {
-      return `${position.x}|${position.y}|${position.z}`;
-    }
-
-    function placeBlock(position, type) {
-      const key = keyForVector(position);
-      if (blocks.has(key)) {
-        return null;
-      }
-      const mesh = new THREE.Mesh(blockGeometry, blockMaterials.get(type));
-      mesh.position.copy(position);
-      mesh.userData = { type };
-      scene.add(mesh);
-      blocks.set(key, mesh);
-      blockMeshes.push(mesh);
-      return mesh;
-    }
-
-    function removeBlock(mesh) {
-      const key = keyForVector(mesh.position);
-      scene.remove(mesh);
-      blocks.delete(key);
-      const index = blockMeshes.indexOf(mesh);
-      if (index !== -1) {
-        blockMeshes.splice(index, 1);
-      }
-    }
-
-    function clearBlocks() {
-      blockMeshes.slice().forEach((mesh) => removeBlock(mesh));
-    }
-
-    function resetWorld() {
-      clearBlocks();
-      addBasePlane();
-      addLog('地面をリセットしました');
-    }
-
-    function addBasePlane() {
-      for (let x = -8; x <= 8; x += 1) {
-        for (let z = -8; z <= 8; z += 1) {
-          placeBlock(new THREE.Vector3(x, 0, z), 'grass');
-        }
-      }
-    }
-
-    addBasePlane();
-
-    let highlightMesh = null;
-    function ensureHighlight() {
-      if (highlightMesh) {
-        return highlightMesh;
-      }
-      highlightMesh = new THREE.Mesh(
-        blockGeometry,
-        new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.7 })
-      );
-      highlightMesh.visible = false;
-      scene.add(highlightMesh);
-      return highlightMesh;
-    }
-
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2();
-
-    function updatePointer(event) {
-      const rect = renderer.domElement.getBoundingClientRect();
-      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-    }
-
-    function alignToGrid(vec) {
-      return new THREE.Vector3(Math.round(vec.x), Math.round(vec.y), Math.round(vec.z));
-    }
-
-    function handleIntersect(intersect) {
-      const normalMatrix = new THREE.Matrix3().getNormalMatrix(intersect.object.matrixWorld);
-      const worldNormal = intersect.face.normal.clone().applyMatrix3(normalMatrix).normalize();
-      const position = alignToGrid(intersect.object.position.clone().add(worldNormal));
-      return position;
-    }
-
-    function handlePointer(event) {
-      if (blockMeshes.length === 0) {
-        return;
-      }
-      updatePointer(event);
-      raycaster.setFromCamera(pointer, camera);
-      const intersects = raycaster.intersectObjects(blockMeshes, false);
-      const helper = ensureHighlight();
-      if (intersects.length > 0) {
-        helper.visible = true;
-        helper.position.copy(intersects[0].object.position);
-      } else {
-        helper.visible = false;
-      }
-    }
-
-    function onPointerDown(event) {
-      if (event.button === 1) {
-        return;
-      }
-      event.preventDefault();
-      updatePointer(event);
-      raycaster.setFromCamera(pointer, camera);
-      const intersects = raycaster.intersectObjects(blockMeshes, false);
-      if (intersects.length === 0) {
-        return;
-      }
-      const intersect = intersects[0];
-      if (event.button === 2) {
-        if (intersect.object.userData?.type) {
-          removeBlock(intersect.object);
-          addLog('ブロックを破壊しました');
-        }
-        return;
-      }
-      const position = handleIntersect(intersect);
-      if (!blocks.has(keyForVector(position))) {
-        placeBlock(position, selectedType);
-        addLog('ブロックを配置しました');
-      }
-    }
-
-    renderer.domElement.addEventListener('pointermove', handlePointer);
-    renderer.domElement.addEventListener('pointerdown', onPointerDown);
-    renderer.domElement.addEventListener('contextmenu', (event) => event.preventDefault());
-
-    window.addEventListener('resize', () => {
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height, false);
-    });
-
-    resetButton.addEventListener('click', () => {
-      resetWorld();
-    });
-
-    toggleGridButton.addEventListener('click', () => {
-      gridVisible = !gridVisible;
-      gridHelper.visible = gridVisible;
-      addLog(gridVisible ? 'グリッドを表示' : 'グリッドを非表示');
-    });
-
-    function animate() {
-      controls.update();
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-  </script>
 </body>
 </html>
