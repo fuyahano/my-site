@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>キーボードで遊ぶミニマリオ</title>
+  <title>地球を検証 — GeoGuessr 風チャレンジ</title>
   <style>
     :root {
-      font-family: "Noto Sans JP", system-ui, sans-serif;
-      background-color: #030617;
-      color: #fff;
+      font-family: "Noto Sans JP", "Inter", system-ui, sans-serif;
+      color: #f7fbff;
+      background-color: #02060f;
     }
     * {
       box-sizing: border-box;
@@ -16,351 +16,463 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: linear-gradient(180deg, #5ec2ff, #0d1b56 70%);
+      background: radial-gradient(circle at top, #2e81ff 0%, transparent 55%),
+        linear-gradient(180deg, #02132b, #02060f 65%);
       display: flex;
       justify-content: center;
-      align-items: center;
-      padding: 2rem 1rem;
+      align-items: flex-start;
+      padding: 2rem 1rem 3rem;
     }
-    .game-shell {
-      width: min(1000px, 100%);
-      border-radius: 2rem;
-      background: rgba(3, 6, 20, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 2rem;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+    .app-shell {
+      width: min(1100px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
     }
     header {
       text-align: center;
-      margin-bottom: 1rem;
     }
     header h1 {
       margin: 0;
-      font-size: clamp(2.5rem, 4vw, 3.5rem);
+      font-size: clamp(2.5rem, 4vw, 3.75rem);
       letter-spacing: 0.2em;
       text-transform: uppercase;
     }
     header p {
-      margin: 0.5rem auto 0;
-      color: #a7c6ff;
+      margin: 0.75rem auto 0;
+      max-width: 560px;
+      color: #b5c7f5;
       font-size: 1.05rem;
     }
-    canvas {
-      display: block;
-      width: 100%;
-      border-radius: 1.5rem;
-      background: linear-gradient(#4fc3ff, #1a5bb8);
-      box-shadow: inset 0 0 55px rgba(255, 255, 255, 0.08), 0 15px 30px rgba(0, 0, 0, 0.5);
+    .game-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 1.5rem;
     }
-    .info {
-      margin-top: 1rem;
+    canvas {
+      width: 100%;
+      height: auto;
+      border-radius: 1.75rem;
+      background: #011835;
+      box-shadow: 0 25px 45px rgba(2, 5, 25, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: block;
+    }
+    .info-panel {
+      background: rgba(4, 12, 32, 0.85);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
       display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 1rem;
     }
-    .info div {
-      background: rgba(255, 255, 255, 0.02);
-      padding: 0.75rem 1rem;
+    .info-card {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.9rem 1rem;
       border-radius: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      min-width: 220px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .info strong {
-      display: block;
-      font-size: 0.8rem;
-      letter-spacing: 0.15em;
-      color: #7ecbff;
-      margin-bottom: 0.35rem;
+    .info-card .label {
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      color: #86b0ff;
+      margin: 0;
     }
-    .info span {
-      font-size: 1.25rem;
-      display: block;
+    .info-value {
+      margin: 0.25rem 0 0;
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+    .hint-text {
+      margin: 0.25rem 0 0;
+      font-size: 1rem;
+      line-height: 1.4;
+      color: #e2ecff;
+    }
+    #nextBtn {
+      margin-top: 0.5rem;
+      width: 100%;
+      padding: 0.95rem;
+      border-radius: 0.9rem;
+      border: none;
+      background: linear-gradient(120deg, #5cc7ff, #3f7bff);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    #nextBtn:active {
+      transform: translateY(1px);
+    }
+    #nextBtn:hover {
+      box-shadow: 0 10px 25px rgba(95, 160, 255, 0.6);
+    }
+    .history {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .history ul {
+      margin: 0.5rem 0 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .history li {
+      font-size: 0.9rem;
+      color: #dfe7ff;
+      padding: 0.35rem 0.5rem;
+      border-radius: 0.75rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .history strong {
+      color: #fff;
+    }
+    @media (max-width: 900px) {
+      .game-panel {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="game-shell">
+  <main class="app-shell">
     <header>
-      <h1>ミニマリオ風ランナー</h1>
-      <p>←→で左右、↑でジャンプ。ゴールを目指してみよう！</p>
+      <h1>GeoGlance</h1>
+      <p>地球を一望しながら、ヒントを頼りに隠れた都市を当てて距離を競うチャレンジです。クリックした場所からどれだけ近いかを確かめましょう。</p>
     </header>
-    <canvas id="game" width="900" height="500" aria-label="キーボード操作で動かすプラットフォーマーゲーム"></canvas>
-    <div class="info">
-      <div>
-        <strong>操作</strong>
-        <span>左右キー / ジャンプ（↑またはスペース）</span>
+    <section class="game-panel">
+      <canvas id="map" width="960" height="520" aria-label="世界地図を模したキャンバスです"></canvas>
+      <div class="info-panel">
+        <div class="info-card">
+          <p class="label">ヒント</p>
+          <p id="clueText" class="hint-text"></p>
+        </div>
+        <div class="info-card">
+          <p class="label">現在のラウンド</p>
+          <p id="roundCount" class="info-value">0</p>
+        </div>
+        <div class="info-card">
+          <p class="label">直近の距離</p>
+          <p id="distanceText" class="info-value">—</p>
+        </div>
+        <div class="info-card">
+          <p class="label">ベストアンサー</p>
+          <p id="bestDistance" class="info-value">—</p>
+        </div>
+        <div class="info-card">
+          <p class="label">正解</p>
+          <p id="answerText" class="info-value">—</p>
+        </div>
+        <button id="nextBtn">次のミッション</button>
+        <div class="history">
+          <p class="label">履歴</p>
+          <ul id="historyList"></ul>
+        </div>
       </div>
-      <div>
-        <strong>ゴール距離</strong>
-        <span id="progress">0%</span>
-      </div>
-    </div>
-  </div>
+    </section>
+  </main>
   <script>
-    const canvas = document.getElementById("game");
+    const canvas = document.getElementById("map");
     const ctx = canvas.getContext("2d");
     const width = canvas.width;
     const height = canvas.height;
 
-    const hero = {
-      x: 60,
-      y: 0,
-      width: 36,
-      height: 48,
-      vx: 0,
-      vy: 0,
-      color: "#ffbb3f",
-      grounded: false,
-    };
-
-    const gravity = 0.9;
-    const friction = 0.85;
-
-    const platforms = [
-      { x: 0, y: height - 30, width, height: 30 },
-      { x: 160, y: height - 120, width: 160, height: 16 },
-      { x: 360, y: height - 200, width: 200, height: 16 },
-      { x: 600, y: height - 140, width: 140, height: 16 },
-      { x: 780, y: height - 80, width: 140, height: 16 },
+    const locations = [
+      {
+        name: "パリ, フランス",
+        clue: "セーヌ河沿いで光り輝く鉄の塔がある都市",
+        lat: 48.8566,
+        lon: 2.3522,
+      },
+      {
+        name: "リオデジャネイロ, ブラジル",
+        clue: "湾岸に抱かれ、丘の上の巨大キリスト像が見渡す都市",
+        lat: -22.9068,
+        lon: -43.1729,
+      },
+      {
+        name: "モスクワ, ロシア",
+        clue: "赤の広場とクレムリンに近く、白い玉ねぎ屋根が映える都市",
+        lat: 55.7558,
+        lon: 37.6173,
+      },
+      {
+        name: "シドニー, オーストラリア",
+        clue: "湾とオペラハウスの帆がアイコンになっている南半球の港町",
+        lat: -33.8688,
+        lon: 151.2093,
+      },
+      {
+        name: "ナイロビ, ケニア",
+        clue: "サバンナに近い標高の高い首都で、豊かな野生がすぐ近くに",
+        lat: -1.2921,
+        lon: 36.8219,
+      },
+      {
+        name: "トロント, カナダ",
+        clue: "世界一高い塔 CN タワーが湖畔でそびえる多文化都市",
+        lat: 43.6532,
+        lon: -79.3832,
+      },
+      {
+        name: "ソウル, 韓国",
+        clue: "漢江のほとりで、古い城壁と近代都市が交差する場所",
+        lat: 37.5665,
+        lon: 126.978,
+      },
+      {
+        name: "カイロ, エジプト",
+        clue: "ナイル川沿い、ピラミッドと共に歴史を刻む都市",
+        lat: 30.0444,
+        lon: 31.2357,
+      },
+      {
+        name: "メキシコシティ, メキシコ",
+        clue: "高原に広がり、フリーダ・カーロゆかりの文化が息づく首都",
+        lat: 19.4326,
+        lon: -99.1332,
+      },
+      {
+        name: "ニューヨーク, アメリカ",
+        clue: "自由の女神が見守る島々と摩天楼が連なる東海岸の大都市",
+        lat: 40.7128,
+        lon: -74.006,
+      },
     ];
 
-    const enemyPlatform = platforms[2];
-    const enemy = {
-      width: 32,
-      height: 32,
-      x: enemyPlatform.x + 24,
-      y: enemyPlatform.y - 32,
-      vx: 2.2,
-      patrolStart: enemyPlatform.x + 10,
-      patrolEnd: enemyPlatform.x + enemyPlatform.width - 32 - 10,
-      color: "#ff4d6d",
+    const continentShapes = [
+      {
+        color: "rgba(255, 255, 255, 0.15)",
+        points: [
+          [0.05, 0.55],
+          [0.25, 0.45],
+          [0.35, 0.55],
+          [0.28, 0.7],
+          [0.15, 0.65],
+        ],
+      },
+      {
+        color: "rgba(255, 255, 255, 0.13)",
+        points: [
+          [0.35, 0.43],
+          [0.4, 0.32],
+          [0.52, 0.3],
+          [0.58, 0.38],
+          [0.5, 0.48],
+          [0.4, 0.45],
+        ],
+      },
+      {
+        color: "rgba(255, 255, 255, 0.1)",
+        points: [
+          [0.1, 0.25],
+          [0.2, 0.2],
+          [0.38, 0.25],
+          [0.45, 0.22],
+          [0.47, 0.12],
+          [0.3, 0.05],
+        ],
+      },
+      {
+        color: "rgba(255, 255, 255, 0.12)",
+        points: [
+          [0.55, 0.58],
+          [0.7, 0.52],
+          [0.8, 0.4],
+          [0.88, 0.4],
+          [0.92, 0.5],
+          [0.82, 0.65],
+          [0.68, 0.68],
+        ],
+      },
+    ];
+
+    const state = {
+      current: null,
+      guess: null,
+      rounds: 0,
+      bestDistance: null,
+      history: [],
     };
 
-    let hitMessageTimer = 0;
-    const hitMessageDuration = 60;
+    const clueText = document.getElementById("clueText");
+    const roundCount = document.getElementById("roundCount");
+    const distanceText = document.getElementById("distanceText");
+    const bestDistance = document.getElementById("bestDistance");
+    const answerText = document.getElementById("answerText");
+    const historyList = document.getElementById("historyList");
+    const nextBtn = document.getElementById("nextBtn");
 
-    const goalLine = width - 60;
+    function xyToLatLng(x, y) {
+      const lng = (x / width) * 360 - 180;
+      const lat = 90 - (y / height) * 180;
+      return { lat, lon: lng };
+    }
 
-    const keys = {
-      ArrowLeft: false,
-      ArrowRight: false,
-      ArrowUp: false,
-      Space: false,
-    };
+    function latLngToXY(lat, lon) {
+      const x = ((lon + 180) / 360) * width;
+      const y = ((90 - lat) / 180) * height;
+      return { x, y };
+    }
 
-    function drawBackground() {
+    function haversine(lat1, lon1, lat2, lon2) {
+      const toRad = (deg) => (deg * Math.PI) / 180;
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) *
+          Math.cos(toRad(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function drawMap() {
       const grd = ctx.createLinearGradient(0, 0, 0, height);
-      grd.addColorStop(0, "#74c0f0");
-      grd.addColorStop(1, "#1b3f8f");
+      grd.addColorStop(0, "#04224d");
+      grd.addColorStop(1, "#010b1f");
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, width, height);
-      for (let i = 0; i < 10; i++) {
-        ctx.fillStyle = "rgba(255,255,255,0.08)";
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,255,255,0.1)";
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 12; i++) {
+        const x = (width / 12) * i;
         ctx.beginPath();
-        ctx.arc(120 * i, 80, 12, 0, Math.PI * 2);
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let i = 1; i <= 6; i++) {
+        const y = (height / 6) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      continentShapes.forEach((shape) => {
+        ctx.beginPath();
+        shape.points.forEach((point, index) => {
+          const px = point[0] * width;
+          const py = point[1] * height;
+          if (index === 0) {
+            ctx.moveTo(px, py);
+          } else {
+            ctx.lineTo(px, py);
+          }
+        });
+        ctx.closePath();
+        ctx.fillStyle = shape.color;
         ctx.fill();
-      }
-    }
+      });
 
-    function drawSunset() {
-      const grd = ctx.createRadialGradient(120, 80, 20, 120, 80, 90);
-      grd.addColorStop(0, "#ffe066");
-      grd.addColorStop(1, "rgba(255, 224, 102, 0)");
-      ctx.fillStyle = grd;
-      ctx.fillRect(0, 0, width, height);
-    }
-
-    function drawEnemy() {
-      ctx.fillStyle = enemy.color;
-      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(enemy.x + 6, enemy.y + 6, 6, 6);
-      ctx.fillRect(enemy.x + enemy.width - 12, enemy.y + 6, 6, 6);
-    }
-
-    const heroSpawn = { x: hero.x, y: hero.y };
-
-    function respawnHero() {
-      hero.x = heroSpawn.x;
-      hero.y = heroSpawn.y;
-      hero.vx = 0;
-      hero.vy = 0;
-      hero.grounded = false;
-    }
-
-    function updateEnemy() {
-      enemy.x += enemy.vx;
-      if (enemy.x <= enemy.patrolStart || enemy.x + enemy.width >= enemy.patrolEnd) {
-        enemy.vx *= -1;
-      }
-    }
-
-    function checkEnemyCollision() {
-      if (
-        hero.x + hero.width > enemy.x &&
-        hero.x < enemy.x + enemy.width &&
-        hero.y + hero.height > enemy.y &&
-        hero.y < enemy.y + enemy.height
-      ) {
-        respawnHero();
-        hitMessageTimer = hitMessageDuration;
-      }
-    }
-
-    function drawHitMessage() {
-      if (hitMessageTimer > 0) {
-        ctx.font = "bold 26px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-        ctx.fillText("ENEMY HIT!", width / 2, 48);
-        hitMessageTimer -= 1;
-      }
-    }
-
-    function drawPlatforms() {
-      platforms.forEach((plat) => {
-        const gradient = ctx.createLinearGradient(plat.x, plat.y, plat.x, plat.y + plat.height);
-        gradient.addColorStop(0, "#ffd166");
-        gradient.addColorStop(1, "#f3841d");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-        ctx.strokeStyle = "#f6b05b";
+      if (state.current && state.guess) {
+        const targetPoint = latLngToXY(state.current.lat, state.current.lon);
+        ctx.fillStyle = "#fbc02d";
+        ctx.beginPath();
+        ctx.arc(targetPoint.x, targetPoint.y, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255, 178, 15, 0.7)";
         ctx.lineWidth = 2;
-        ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
-      });
-
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(goalLine + 40, height - 180, 6, 140);
-      ctx.fillStyle = "#ff4b5c";
-      ctx.beginPath();
-      ctx.moveTo(goalLine + 46, height - 180);
-      ctx.lineTo(goalLine + 46 + 30, height - 160);
-      ctx.lineTo(goalLine + 46, height - 140);
-      ctx.fill();
-    }
-
-    function handleInput() {
-      if (keys.ArrowLeft) {
-        hero.vx = Math.max(hero.vx - 0.9, -6);
-      } else if (keys.ArrowRight) {
-        hero.vx = Math.min(hero.vx + 0.9, 6);
-      } else {
-        hero.vx *= friction;
+        ctx.beginPath();
+        ctx.moveTo(targetPoint.x - 12, targetPoint.y);
+        ctx.lineTo(targetPoint.x + 12, targetPoint.y);
+        ctx.moveTo(targetPoint.x, targetPoint.y - 12);
+        ctx.lineTo(targetPoint.x, targetPoint.y + 12);
+        ctx.stroke();
       }
-      if (keys.ArrowUp || keys.Space) {
-        if (hero.grounded) {
-          hero.vy = -16;
-          hero.grounded = false;
-        }
+
+      if (state.guess) {
+        const guessPoint = latLngToXY(state.guess.lat, state.guess.lon);
+        ctx.fillStyle = "#ff5f8e";
+        ctx.beginPath();
+        ctx.arc(guessPoint.x, guessPoint.y, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255, 95, 142, 0.8)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(guessPoint.x - 14, guessPoint.y);
+        ctx.lineTo(guessPoint.x + 14, guessPoint.y);
+        ctx.moveTo(guessPoint.x, guessPoint.y - 14);
+        ctx.lineTo(guessPoint.x, guessPoint.y + 14);
+        ctx.stroke();
       }
     }
 
-    function applyPhysics() {
-      hero.vy += gravity;
-      hero.x += hero.vx;
-      hero.y += hero.vy;
+    function updateUI() {
+      clueText.textContent = state.current?.clue ?? "クリックして新しいミッションを始めよう。";
+      roundCount.textContent = state.rounds;
+      distanceText.textContent = state.guess
+        ? `${state.lastDistance.toFixed(1)} km`
+        : "—";
+      bestDistance.textContent = state.bestDistance ? `${state.bestDistance.toFixed(1)} km` : "—";
+      answerText.textContent = state.guess ? state.current.name : "—";
 
-      if (hero.x < 0) {
-        hero.x = 0;
-        hero.vx = 0;
-      } else if (hero.x + hero.width > width) {
-        hero.x = width - hero.width;
-        hero.vx = 0;
-      }
-
-      hero.grounded = false;
-      platforms.forEach((plat) => {
-        if (
-          hero.x + hero.width > plat.x &&
-          hero.x < plat.x + plat.width &&
-          hero.y + hero.height > plat.y &&
-          hero.y + hero.height < plat.y + plat.height + hero.vy &&
-          hero.vy >= 0
-        ) {
-          hero.y = plat.y - hero.height;
-          hero.vy = 0;
-          hero.grounded = true;
-        }
-      });
-
-      if (hero.y + hero.height > height) {
-        hero.y = height - hero.height;
-        hero.vy = 0;
-        hero.grounded = true;
-      }
+      historyList.innerHTML = state.history
+        .map(
+          (entry) => `
+            <li>
+              <strong>${entry.name}</strong>
+              <span>${entry.distance.toFixed(1)} km</span>
+            </li>
+          `
+        )
+        .join("");
     }
 
-    function drawHero() {
-      ctx.fillStyle = hero.color;
-      ctx.fillRect(hero.x, hero.y, hero.width, hero.height);
-      ctx.fillStyle = "#000";
-      ctx.fillRect(hero.x + 6, hero.y + 10, 8, 8);
-      ctx.fillRect(hero.x + hero.width - 14, hero.y + 10, 8, 8);
+    function startRound() {
+      state.rounds += 1;
+      state.current = locations[Math.floor(Math.random() * locations.length)];
+      state.guess = null;
+      state.lastDistance = null;
+      drawMap();
+      updateUI();
     }
 
-    function drawProgress() {
-      const progress = Math.min(100, Math.max(0, Math.round((hero.x / (goalLine - hero.width)) * 100)));
-      document.getElementById("progress").textContent = `${progress}%`;
-    }
-
-    function checkGoal() {
-      if (hero.x + hero.width >= goalLine) {
-        ctx.font = "bold 36px sans-serif";
-        ctx.fillStyle = "#fff";
-        ctx.fillText("GOAL!", width / 2 - 80, 60);
+    canvas.addEventListener("click", (event) => {
+      if (!state.current) {
+        return;
       }
-    }
-
-    function loop() {
-      drawBackground();
-      drawSunset();
-      drawPlatforms();
-      updateEnemy();
-      drawEnemy();
-      handleInput();
-      applyPhysics();
-      checkEnemyCollision();
-      drawHero();
-      drawProgress();
-      checkGoal();
-      drawHitMessage();
-      requestAnimationFrame(loop);
-    }
-
-    window.addEventListener("keydown", (event) => {
-      const key = event.code;
-      if (key === "Space") {
-        keys.Space = true;
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const guess = xyToLatLng(x, y);
+      state.guess = guess;
+      const distance = haversine(state.current.lat, state.current.lon, guess.lat, guess.lon);
+      state.lastDistance = distance;
+      if (state.bestDistance === null || distance < state.bestDistance) {
+        state.bestDistance = distance;
       }
-      if (key === "ArrowUp") {
-        keys.ArrowUp = true;
+      state.history.unshift({ name: state.current.name, distance });
+      if (state.history.length > 5) {
+        state.history.pop();
       }
-      if (key === "ArrowLeft") {
-        keys.ArrowLeft = true;
-      }
-      if (key === "ArrowRight") {
-        keys.ArrowRight = true;
-      }
+      drawMap();
+      updateUI();
     });
 
-    window.addEventListener("keyup", (event) => {
-      const key = event.code;
-      if (key === "Space") {
-        keys.Space = false;
-      }
-      if (key === "ArrowUp") {
-        keys.ArrowUp = false;
-      }
-      if (key === "ArrowLeft") {
-        keys.ArrowLeft = false;
-      }
-      if (key === "ArrowRight") {
-        keys.ArrowRight = false;
-      }
+    nextBtn.addEventListener("click", () => {
+      startRound();
     });
 
-    loop();
+    drawMap();
+    updateUI();
+    startRound();
   </script>
 </body>
 </html>
